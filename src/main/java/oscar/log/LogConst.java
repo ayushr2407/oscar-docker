@@ -32,6 +32,8 @@ package oscar.log;
  * @author yilee18
  */
 public class LogConst {
+    /* Action constants 
+	 * These should describe what user action was done */
     public static final String LOGIN = "log in";
     public static final String LOGOUT = "log out";
     public static final String SHELTER_SELECTION="select shelter";
@@ -57,6 +59,14 @@ public class LogConst {
     public static final String GENERATE = "generate";
     public static final String DOWNLOAD = "download";
     public static final String UPLOAD = "upload";
+    
+    public static final String ACTION_ADD = "add";
+    public static final String ACTION_UPDATE = "update";
+    
+    /* Content/Module constants
+	 * These should describe what module the action applies to. */
+    public static final String CON_EFORM_TEMPLATE = "eFormTemplate";
+    public static final String CON_EFORM_DATA = "eForm";
 
     public static final String CON_LOGIN_AGREEMENT = "login agreement";
     public static final String CON_LOGIN = "login";
@@ -92,5 +102,10 @@ public class LogConst {
     public static final String CON_BILL = "bill";
     public static final String CON_OHIP = "ohip file";
     public static final String CON_MCEDT_MAILBOX = "mcedt mailbox";
+    
+    /* Status constants
+	 * These should describe the outcome of the action */
+	public static final String STATUS_SUCCESS = "SUCCESS";
+	public static final String STATUS_FAILURE = "FAILURE";
     
 }

@@ -174,6 +174,41 @@ public class LogAction {
 	}
 
 	/**
+	 * This method will add a log entry asynchronously in a separate thread.
+	 */
+	public static void addLogEntry(String providerNo, Integer demographicNo, String action, String module, String status, String contentId, String ip, String data, Integer securityId) {
+		OscarLog oscarLog = new OscarLog();
+
+		oscarLog.setProviderNo(providerNo);
+		oscarLog.setDemographicId(demographicNo);
+		oscarLog.setAction(action);
+		oscarLog.setContent(module);
+		//oscarLog.setStatus(status);
+		oscarLog.setContentId(status + contentId);
+		oscarLog.setIp(ip);
+		oscarLog.setSecurityId(securityId);
+		oscarLog.setData(data);
+
+		executorService.execute(new AddLogExecutorTask(oscarLog));
+	}
+	public static void addLogEntry(String providerNo, Integer demographicNo, String action, String module, String status, String contentId, String ip, String data) {
+		addLogEntry(providerNo, demographicNo, action, module, status, contentId, ip, data, null);
+	}
+	public static void addLogEntry(String providerNo, Integer demographicNo, String action, String module, String status, String contentId, String ip) {
+		addLogEntry(providerNo, demographicNo, action, module, status, contentId, ip, null, null);
+	}
+	public static void addLogEntry(String providerNo, Integer demographicNo, String action, String module, String status, String data) {
+		addLogEntry(providerNo, demographicNo, action, module, status, null, null, data, null);
+	}
+	public static void addLogEntry(String providerNo, String action, String module, String status, String contentId, String ip) {
+		addLogEntry(providerNo, null, action, module, status, contentId, ip, null, null);
+	}
+	public static void addLogEntry(String providerNo, String action, String module, String status, String data) {
+		addLogEntry(providerNo, null, action, module, status, null, null, data, null);
+	}
+
+
+	/**
 	 * This method will add a log entry in the same thread and can participate in the same transaction if one exists.
 	 */
 	public static void addLogSynchronous(String provider_no, String action, String content, String contentId, String ip) {
