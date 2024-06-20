@@ -135,7 +135,7 @@
       <dependency>
          <groupId>commons-io</groupId>
          <artifactId>commons-io</artifactId>
-         <version>2.11.0</version>
+         <version>2.13.0</version>
       </dependency>
       <dependency>
          <groupId>commons-fileupload</groupId>
@@ -1233,6 +1233,7 @@
             <artifactId>maven-resources-plugin</artifactId>
             <version>2.6</version>
             <configuration>
+               <propertiesEncoding>ISO-8859-1</propertiesEncoding>
                <nonFilteredFileExtensions>
                   <nonFilteredFileExtension>pdf</nonFilteredFileExtension>
                   <nonFilteredFileExtension>jar</nonFilteredFileExtension>
@@ -1247,7 +1248,7 @@
          <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>buildnumber-maven-plugin</artifactId>
-            <version>1.1</version>
+            <version>3.2.0</version>
             <executions>
                <execution>
                   <phase>validate</phase>
@@ -1260,12 +1261,12 @@
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-site-plugin</artifactId>
-            <version>3.0</version>
+            <version>4.0.0-M13</version>
             <dependencies>
                <dependency>
                   <groupId>org.apache.maven.doxia</groupId>
                   <artifactId>doxia-module-markdown</artifactId>
-                  <version>1.3</version>
+                  <version>2.0.0-M9</version>
                </dependency>
             </dependencies>
             <configuration>
@@ -1460,7 +1461,7 @@
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-compiler-plugin</artifactId>
-            <version>2.5.1</version>
+            <version>3.8.1</version>
             <configuration>
                <!--  let this be determined globally by the setting of maven.compiler.source and maven.compiler.target -->
                <!-- <source>1.8</source>
@@ -1472,27 +1473,28 @@
             </configuration>
          </plugin>
          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-antrun-plugin</artifactId>
-            <version>1.7</version>
+            <version>3.1.0</version>
             <executions>
                <execution>
-                  <id>set_timestamp</id>
                   <phase>process-classes</phase>
                   <goals>
                      <goal>run</goal>
                   </goals>
                   <configuration>
-                     <tasks>
+                     <target>
                         <tstamp>
                            <format property="build.dateTime.value" pattern="yyyy-MM-dd hh:mm aa" />
                         </tstamp>
                         <echo message="build time : ${build.dateTime.value}" />
                         <replace file="target/classes/oscar_mcmaster.properties" token="${build.dateTime}" value="${build.dateTime.value}" />
                         <property environment="env" />
+                        <echo message="ENVIRONMENT ${env}" />
                         <echo message="JOB_NAME - BUILD_NUMBER : ${env.JOB_NAME} - ${env.BUILD_NUMBER}" />
                         <replace file="target/classes/oscar_mcmaster.properties" token="${build.JOB_NAME}" value="${env.JOB_NAME}" />
                         <replace file="target/classes/oscar_mcmaster.properties" token="${build.BUILD_NUMBER}" value="${env.BUILD_NUMBER}" />
-                     </tasks>
+                     </target>
                   </configuration>
                </execution>
                <execution>
@@ -1503,11 +1505,11 @@
                      <goal>run</goal>
                   </goals>
                   <configuration>
-                     <tasks>
+                     <target>
                         <property name="build.compiler" value="extJavac" />
                         <property name="jspc_target" value="${project.name}-${project.version}" />
                         <ant antfile="jspc.xml" target="jspc" />
-                     </tasks>
+                     </target>
                   </configuration>
                </execution>
                <execution>
@@ -1517,24 +1519,24 @@
                      <goal>run</goal>
                   </goals>
                   <configuration>
-                     <tasks>
+                     <target>
                         <copy todir="catalina_base/webapps/oscar">
                            <fileset dir="target/${project.name}-${project.version}" />
                         </copy>
-                     </tasks>
+                     </target>
                   </configuration>
                </execution>
                <execution>
                   <id>clean_local_catalina_base</id>
                   <phase>clean</phase>
                   <configuration>
-                     <tasks>
+                     <target>
                         <delete dir="catalina_base/webapps/oscar" />
                         <delete includeemptydirs="true" quiet="true">
                            <fileset dir="catalina_base/logs" excludes=".gitignore" />
                            <fileset dir="catalina_base/work" excludes=".gitignore" />
                         </delete>
-                     </tasks>
+                     </target>
                   </configuration>
                   <goals>
                      <goal>run</goal>
@@ -1545,7 +1547,7 @@
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-checkstyle-plugin</artifactId>
-            <version>2.15</version>
+            <version>2.17</version>
             <configuration>
                <configLocation>utils/checkstyle.xml</configLocation>
                <failsOnError>true</failsOnError>
@@ -1573,7 +1575,7 @@
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-pmd-plugin</artifactId>
-            <version>2.7.1</version>
+            <version>3.21.2</version>
             <!--
 				<executions>
 					<execution>
@@ -1586,7 +1588,6 @@
 				</executions>
 				 -->
             <configuration>
-               <sourceEncoding>ISO-8859-1</sourceEncoding>
                <targetJdk>1.8</targetJdk>
                <rulesets>
                   <ruleset>utils/pmd_rules.xml</ruleset>
@@ -1596,20 +1597,21 @@
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
+               <version>3.2.5</version>
             <configuration>
                <skipTests>false</skipTests>
-               <argLine>-Xms512m -Xmx512m -Xss256k -XX:MaxNewSize=64m -XX:MaxPermSize=192m</argLine>
+                  <argLine>-Xms4096m -Xmx4096m -Xss2048k -XX:MaxNewSize=256m -XX:MaxPermSize=512m</argLine>
                <excludes>
                   <exclude>**/AR2005*.java</exclude>
                   <exclude>**/OntarioMDSpec4DataTest.java</exclude>
                   <exclude>**/ONAREnhancedBornConnectorTest.java</exclude>
+                  <exclude>org/oscarehr/e2e/**/*.java</exclude>
                </excludes>
                <systemPropertyVariables>
                   <oscar.dbinit.skip>${oscar.dbinit.skip}</oscar.dbinit.skip>
                   <buildDirectory>${project.build.directory}</buildDirectory>
                </systemPropertyVariables>
             </configuration>
-            <version>2.10</version>
          </plugin>
          <plugin>
             <groupId>org.oscarehr</groupId>
@@ -1642,9 +1644,9 @@
 -->
          </plugin>
          <plugin>
-            <groupId>org.mortbay.jetty</groupId>
-            <artifactId>maven-jetty-plugin</artifactId>
-            <version>6.1.26</version>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-maven-plugin</artifactId>
+            <version>11.0.20</version>
          </plugin>
          <plugin>
             <groupId>org.codehaus.mojo</groupId>
@@ -1719,7 +1721,7 @@
                            <pluginExecutionFilter>
                               <groupId>org.apache.maven.plugins</groupId>
                               <artifactId>maven-antrun-plugin</artifactId>
-                              <versionRange>[1.3,)</versionRange>
+                              <versionRange>[3.1.0,)</versionRange>
                               <goals>
                                  <goal>run</goal>
                               </goals>
@@ -1732,7 +1734,7 @@
                            <pluginExecutionFilter>
                               <groupId>org.apache.maven.plugins</groupId>
                               <artifactId>maven-checkstyle-plugin</artifactId>
-                              <versionRange>[2.8,)</versionRange>
+                              <versionRange>[2.17,)</versionRange>
                               <goals>
                                  <goal>checkstyle</goal>
                               </goals>
