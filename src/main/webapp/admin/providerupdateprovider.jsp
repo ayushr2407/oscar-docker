@@ -362,11 +362,6 @@ String sName = request.getParameter("last_name");
 		      userPropertyDAO.saveProp(provider2.getProviderNo(), UserProperty.CLINICALCONNECT_ID, clinicalConnectId);
 		      userPropertyDAO.saveProp(provider2.getProviderNo(), UserProperty.CLINICALCONNECT_TYPE, clinicalConnectType);
             }
-                  
-                  if(OscarProperties.getInstance().getBooleanProperty("questimed.enabled", "true")) {
-                    String questimedUserName = request.getParameter("questimedUserName");
-                    userPropertyDAO.saveProp(provider2.getProviderNo(), UserProperty.QUESTIMED_USERNAME, questimedUserName);
-                  }
 
 		  String officialFirstName = request.getParameter("officialFirstName");
 		  String officialSecondName = request.getParameter("officialSecondName");

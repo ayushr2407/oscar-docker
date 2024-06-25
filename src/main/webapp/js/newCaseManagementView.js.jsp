@@ -547,11 +547,10 @@ function navBarLoader() {
                   ctx + "/oscarEncounter/displayConsultation.do?hC=" + Colour.consultation,
                   ctx + "/oscarEncounter/displayHRM.do?hC=",
                   ctx + "/eaaps/displayEctEaaps.do?hC=",
-                  ctx + "/oscarEncounter/displayEconsultation.do?hC=",
-                  ctx + "/oscarEncounter/displayQuestimed.do?hC="
+                  ctx + "/oscarEncounter/displayEconsultation.do?hC="
                    ];
 
-            var leftNavBarTitles = [ "preventions", "tickler", "Dx", "forms", "eforms", "docs","labs", "msgs", "measurements", "consultation", "HRM", "eams", "eConsult","Questimed"];
+            var leftNavBarTitles = [ "preventions", "tickler", "Dx", "forms", "eforms", "docs","labs", "msgs", "measurements", "consultation", "HRM", "eams", "eConsult"];
             
         <% if (Boolean.parseBoolean(OscarProperties.getInstance().getProperty("DEMOGRAPHIC_PATIENT_CLINIC_STATUS", "true"))) {
             SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);

@@ -109,7 +109,6 @@ if(!authed) {
 <%@page import="org.oscarehr.sharingcenter.SharingCenterUtil"%>
 <%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="org.oscarehr.util.SpringUtils"%>
-<%@page import="org.oscarehr.ws.rest.util.QuestimedUtil"%>
 <%@page import="org.owasp.encoder.Encode"%>
 <%@page import="org.springframework.web.context.*"%>
 <%@page import="org.springframework.web.context.support.*"%>
@@ -1673,13 +1672,6 @@ if (iviewTag!=null && !"".equalsIgnoreCase(iviewTag.trim())){
 		<bean:message
 			key="demographic.demographiceditdemographic.btnAddEForm" /> </a></td>
 	</tr>
-	<% if(OscarProperties.getInstance().getBooleanProperty("questimed.enabled","true") && QuestimedUtil.isServiceConnectionReady()) { %>
-	<tr>
-		<td><a href=# onclick="popupPage(700,960,'<%= request.getContextPath() %>/questimed/launch.jsp?demographic_no=<%=demographic_no%>');return false;"					>
-		<bean:message
-			key="demographic.demographiceditdemographic.Questimed" /> </a></td>
-	</tr>
-	<% } %>
 	<% if (isSharingCenterEnabled) { %>
 	<!-- Sharing Center Links -->
 	<tr>
