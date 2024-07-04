@@ -22,12 +22,23 @@
     Toronto, Ontario, Canada
 
 --%>
-<%@page import="org.oscarehr.util.DigitalSignatureUtils"%><%@page import="org.oscarehr.util.MiscUtils"%>
+<%@page import="org.oscarehr.util.DigitalSignatureUtils"%>
+<%@page import="org.oscarehr.util.MiscUtils"%>
 <%@page import="java.io.FileOutputStream"%>
 <%@page import="java.io.InputStream"%>
 <%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="org.apache.commons.codec.binary.Base64" %>
 <%@ page import="org.oscarehr.common.model.DigitalSignature" %>
+<%@ taglib uri="/WEB-INF/security.tld" prefix="security" %>
+
+<%
+    if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
+    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
+%>
+
+<security:oscarSec roleName="<%=roleName$%>" objectName="_con" rights="r" reverse="<%=true%>">
+	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_con");%>
+</security:oscarSec>
 <%
 	String signatureId = "";
 	try {
@@ -35,28 +46,28 @@
 		String filename = DigitalSignatureUtils
 				.getTempFilePath(request
 						.getParameter(DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY));
-		
+
 		String uploadSource = request.getParameter("source");
 
 		if (uploadSource != null
 				&& uploadSource.equalsIgnoreCase("IPAD")) {
-                    
+
 			FileOutputStream fos = new FileOutputStream(filename);
 			String imageString = request.getParameter("signatureImage");
 			imageString = imageString.substring(imageString.indexOf(",")+1);
-			
+
 			Base64 b64 = new Base64();
 			byte[] imageByteData = imageString.getBytes();
-			
+
 			byte[] imageData = b64.decode(imageByteData);
-			
+
 			if (imageData != null) {
 				fos.write(imageData);
 			}
-			
+
 			fos.flush();
 			fos.close();
-			
+
 			MiscUtils.getLogger().debug("Signature uploaded: " + filename + ", size=" + imageData.length);
 		} else if (uploadSource == null){
 
@@ -76,11 +87,11 @@
 							+ counter);
 
 		}
-		
-		boolean saveToDB = "true".equals(request.getParameter("saveToDB")); 
+
+		boolean saveToDB = "true".equals(request.getParameter("saveToDB"));
 		if (saveToDB) {
-			
-			Integer demo; 
+
+			Integer demo;
 			try {
 				demo = Integer.parseInt(request.getParameter("demographicNo"));
 			}
@@ -88,8 +99,8 @@
 				demo = -1;
 			}
 			DigitalSignature signature = DigitalSignatureUtils.storeDigitalSignatureFromTempFileToDB(
-						loggedInInfo, 
-						request.getParameter(DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY), 
+						loggedInInfo,
+						request.getParameter(DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY),
 						demo);
 			if (signature != null) {
 				signatureId = "" + signature.getId();
