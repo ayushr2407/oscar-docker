@@ -537,7 +537,7 @@ if (request.getAttribute("printError") != null && (Boolean) request.getAttribute
 										if(up != null && !StringUtils.isEmpty(up.getValue())) {
 									%>
 											  <div class="dropdowns">
-											  <button class="dropbtns btn">Macros&nbsp;<span class="caret" ></span></button>
+											  <button class="dropbtns btn"><bean:message key="global.macro"/>&nbsp;<span class="caret" ></span></button>
 											  <div class="dropdowns-content">
 
 
@@ -1364,7 +1364,7 @@ if (request.getAttribute("printError") != null && (Boolean) request.getAttribute
 										if(up != null && !StringUtils.isEmpty(up.getValue())) {
 									%>
 											  <div class="dropdowns">
-											  <button class="dropbtns btn">Macros&nbsp;<span class="caret" ></span></button>
+											  <button class="dropbtns btn"><bean:message key="global.macro"/>&nbsp;<span class="caret" ></span></button>
 											  <div class="dropdowns-content">
 
 
