@@ -1353,7 +1353,9 @@ if (request.getAttribute("printError") != null && (Boolean) request.getAttribute
                         <% // end for headers
                         }  // for i=0... (headers)
   					 %>
-
+                    <%
+                    if ( props.isPropertyActive("SHOW_BOTTOM_LAB_BUTTONS") ) {
+                    %>
                         <table style="width:100%; border:0px; background-color:silver" class="MainTableBottomRowRightColumn" >
                             <tr>
                                 <td style="text-align: left; width:100%">
@@ -1437,6 +1439,9 @@ if (request.getAttribute("printError") != null && (Boolean) request.getAttribute
                                 </td>
                             </tr>
                         </table>
+                <%
+                }
+                %>
                     </td>
                 </tr>
                 <tr><td colspan="1"><a style="color:white;" href="javascript:void(0);" onclick="showHideItem('rawhl7_<%=segmentID%>');" >show/hide</a>
