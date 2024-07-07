@@ -1150,10 +1150,11 @@ popup2(710,1024,0,0,'<%=request.getContextPath()%>/dms/incomingDocs.jsp?pdfDir=R
                 </tr>
 
                 <tr><td colspan="2">
+<% if ( props.isPropertyActive("SHOW_BOTTOM_LAB_BUTTONS") || (request.getParameter("inWindow") != null && request.getParameter("inWindow").equalsIgnoreCase("true"))) {%>
    <% if (demographicID != null && !demographicID.equals("") && !demographicID.equalsIgnoreCase("null") && !ackedOrFiled ) {%>
 
 
-                                                    									<%
+									<%
 										UserPropertyDAO upDao = SpringUtils.getBean(UserPropertyDAO.class);
 										UserProperty up = upDao.getProp(LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo(),UserProperty.LAB_MACRO_JSON);
 										if(up != null && !StringUtils.isEmpty(up.getValue())) {
@@ -1243,15 +1244,19 @@ popup2(710,1024,0,0,'<%=request.getContextPath()%>/dms/incomingDocs.jsp?pdfDir=R
                                                         <input type="button" id="rxBtn2_<%=docId%>" class="btn" value="<bean:message key="global.rx"/>" onclick="popupPatientRx(1024,500,'<%=request.getContextPath()%>/oscarRx/choosePatient.do?providerNo=<%= providerNo%>&demographicNo=','Rx<%=demographicID%>', '<%=docId%>', true); return false;" <%=btnDisabled %>>
 
                                                         <input type="button" id="refileDoc2_<%=docId%>" class="btn" value="<bean:message key="oscarEncounter.noteBrowser.msgRefile"/>" onclick="popup2(710,1024,0,0,'<%=request.getContextPath()%>/dms/incomingDocs.jsp?pdfDir=Refile', 'Refile<%=docId%>');refileDoc('<%=docId%>'); return(false);">
+
+<% } %>
                                                         <input type="button" class="btn" id="next_<%=docId%>" value="<bean:message key='global.Next'/>" onclick="jQuery(':submit').prop('disabled',true); jQuery(':button').prop('disabled',true); jQuery('#loader').show(); close = window.opener.openNext(<%=docId%>); ">
 
 
                    </td>
                    <td>&nbsp;</td>
                 </tr>
-                <tr><td colspan="2" ><hr style="width:100%; color:red"></td></tr>
+                <tr><td colspan="2" ></td></tr>
             </table>
-
+<% if (request.getParameter("inWindow") == null ) {  %>
+<hr style="width:100%; border: 1px solid red">
+<% } %>
         </div>
 <!--
 
