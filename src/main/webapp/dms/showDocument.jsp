@@ -572,6 +572,7 @@
                                                         <input type="hidden" name="labType" value="DOC">
                                                         <input type="hidden" name="ajaxcall" value="yes">
                                                         <input type="hidden" name="comment" id="comment_<%=docId%>" value="<%=docCommentTxt%>">
+                                        <div style="background-color: silver;">
                                                     <% if (demographicID != null && !demographicID.equals("") && !demographicID.equalsIgnoreCase("null") && !ackedOrFiled ) {%>
 
 
@@ -601,8 +602,8 @@
 											    }
 											  %>
 
-											  </div>
-											</div>
+											      </div>
+											    </div>
 									<% } %>
 
                                                         <input type="submit" id="ackBtn_<%=docId%>" class="btn  btn-primary" value="<bean:message key="oscarMDS.segmentDisplay.btnAcknowledge"/>">
@@ -676,7 +677,7 @@
                                                         <input type="button" id="rxBtn_<%=docId%>" class="btn" value="<bean:message key="global.rx"/>" onclick="popupPatientRx(1024,500,'<%=request.getContextPath()%>/oscarRx/choosePatient.do?providerNo=<%= providerNo%>&demographicNo=','Rx<%=demographicID%>', '<%=docId%>', true); return false;" <%=btnDisabled %>>
                                                         <input type="button" id="refileDoc_<%=docId%>" class="btn" value="<bean:message key="oscarEncounter.noteBrowser.msgRefile"/>" onclick="
 popup2(710,1024,0,0,'<%=request.getContextPath()%>/dms/incomingDocs.jsp?pdfDir=Refile', 'Refile<%=docId%>');refileDoc('<%=docId%>');return(false);">
-                                                        <select  id="queueList_<%=docId%>" name="queueList" style="width:100px;">
+                                                        <select  id="queueList_<%=docId%>" name="queueList" style="width:100px; margin-bottom: 2px;">
                                                             <%
                                                             for (Hashtable ht : queues) {
                                                                 int id = (Integer) ht.get("id");
@@ -685,6 +686,7 @@ popup2(710,1024,0,0,'<%=request.getContextPath()%>/dms/incomingDocs.jsp?pdfDir=R
                                                             <option value="<%=id%>" <%=((id == queueId) ? " selected" : "")%>><%= qName%> </option>
                                                             <%}%>
                                                         </select>
+											</div>
                             </form>
             <table class="docTable">
                 <tr>
@@ -1153,7 +1155,7 @@ popup2(710,1024,0,0,'<%=request.getContextPath()%>/dms/incomingDocs.jsp?pdfDir=R
 <% if ( props.isPropertyActive("SHOW_BOTTOM_LAB_BUTTONS") || (request.getParameter("inWindow") != null && request.getParameter("inWindow").equalsIgnoreCase("true"))) {%>
    <% if (demographicID != null && !demographicID.equals("") && !demographicID.equalsIgnoreCase("null") && !ackedOrFiled ) {%>
 
-
+                                        <div style="background-color: silver;">
 									<%
 										UserPropertyDAO upDao = SpringUtils.getBean(UserPropertyDAO.class);
 										UserProperty up = upDao.getProp(LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo(),UserProperty.LAB_MACRO_JSON);
@@ -1247,7 +1249,7 @@ popup2(710,1024,0,0,'<%=request.getContextPath()%>/dms/incomingDocs.jsp?pdfDir=R
 
 <% } %>
                                                         <input type="button" class="btn" id="next_<%=docId%>" value="<bean:message key='global.Next'/>" onclick="jQuery(':submit').prop('disabled',true); jQuery(':button').prop('disabled',true); jQuery('#loader').show(); close = window.opener.openNext(<%=docId%>); ">
-
+                                        </div>
 
                    </td>
                    <td>&nbsp;</td>
