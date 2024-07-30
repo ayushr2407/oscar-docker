@@ -199,7 +199,7 @@ if (message != null){
 					<oscar:oscarPropertiesCheck property="PATHNET_LABS" value="yes">
 					selected
 					</oscar:oscarPropertiesCheck>>EXCELLERIS</option>
-                    
+                    <option value="ExcellerisON">ExcellerisON</option>
 					<option value="GDML">GDML</option>
 					<option value="HHSEMR">HHSEMR</option>
 					<option value="HRMXML">HRM XML</option>

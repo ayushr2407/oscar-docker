@@ -1384,7 +1384,20 @@ input[id^='acklabel_']{
                                                 </div>
                                             </td>
                                         </tr>
-
+                                        <% if ("ExcellerisON".equals(handler.getMsgType())) { %>
+                                            <tr>
+                                                <td>
+                                                    <div class="FieldDatas">
+                                                        <strong>Reported on:</strong>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="FieldDatas" style="white-space:nowrap;">
+                                                        <%= ((ExcellerisOntarioHandler) handler).getReportStatusChangeDate(0) %>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        <% } %>
                                          <tr>
                                              <td >
                                                 <div class="FieldDatas">
@@ -1829,6 +1842,17 @@ for(int mcount=0; mcount<multiID.length; mcount++){
                         	   String lastObxSetId = "0";
                                boolean obrFlag = false;
                                int obxCount = handler.getOBXCount(j);
+                               
+                               if (handler.getMsgType().equals("ExcellerisON") && handler.getObservationHeader(j, 0).equals(headers.get(i))) {
+                               String orderRequestStatus = ((ExcellerisOntarioHandler) handler).getOrderStatus(j);
+                               %>
+                                    <tr style="<%=(linenum % 2 == 1 ? "background-color:"+highlight : "")%>" >
+                                        <td style="text-align:left; vertical-align:top"><span style="font-size:16px;font-weight: bold;"><%=handler.getOBRName(j)%></span></td>
+                                        <td colspan="1"><%=orderRequestStatus%></td>
+                                    </tr>
+                               <%
+                               }   
+                               
                                for (k=0; k < obxCount; k++){
 
                                	String obxName = handler.getOBXName(j, k);
@@ -1870,7 +1894,7 @@ for(int mcount=0; mcount<multiID.length; mcount++){
                                    	b1 = !obrFlag && !obrName.equals("");
                                    	b2 = !(obxName.contains(obrName));
                                    	b3 = !(obxCount < 2 && !isUnstructuredDoc);
-                                       if( b1 && b2 && b3){
+                                       if( b1 && b2 && b3 && !handler.getMsgType().equals("ExcellerisON")){
                                        %>
                                            <tr style="<%=(linenum % 2 == 1 ? "background-color:"+highlight : "")%>" >
                                                <td style="vertical-align:top; text-align:left;"><span style="font-size:16px;font-weight: bold;"><%=obrName%></span></td>
@@ -2174,12 +2198,16 @@ for(int mcount=0; mcount<multiID.length; mcount++){
 													}
 
 												%>
-													 <td style="text-align:<%=align%>"><a href="<%=request.getContextPath() %>/lab/DownloadEmbeddedDocumentFromLab.do?labNo=<%=segmentID%>&segment=<%=j%>&group=<%=k%><%=legacy%>">PDF Report</a></td>
+													 <td style="text-align:<%=align%>"><a href="<%=request.getContextPath() %>/lab/DownloadEmbeddedDocumentFromLab.do?labNo=<%=Encode.forHtmlAttribute(segmentID) %>&segment=<%=j%>&group=<%=k%><%=legacy%>">PDF Report</a></td>
 													 <%
 												} else {
 											%>
                                            <td style="text-align:<%=align%>">
+                                                <% if (handler.getMsgType().equals("ExcellerisON") && !((ExcellerisOntarioHandler) handler).getOBXSubId(j, k).isEmpty()) { %>
+                                                <em><%= ((ExcellerisOntarioHandler) handler).getOBXSubIdWithObservationValue( j, k) %></em>
+                                                <% } else { %>
                                            		<%= handler.getOBXResult( j, k) %>
+                                                <% } %>
                                            		<%= handler.isTestResultBlocked(j, k) ? "<a href='#' title='Do Not Disclose Without Explicit Patient Consent'>(BLOCKED)</a>" : ""%>
                                            </td>
 

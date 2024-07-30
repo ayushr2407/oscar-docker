@@ -41,7 +41,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 
@@ -62,7 +64,7 @@ import oscar.util.UtilDateUtilities;
 
 public class ExcellerisOntarioHandler implements MessageHandler {
 
-	Logger logger = org.oscarehr.util.MiscUtils.getLogger();
+    Logger logger = org.oscarehr.util.MiscUtils.getLogger();
     ORU_R01 msg = null;
 
 	private static List<String> labDocuments = Arrays.asList("BCCACSP","BCCASMP","BLOODBANKT",
@@ -71,6 +73,32 @@ public class ExcellerisOntarioHandler implements MessageHandler {
 	
 	public static final String VIHARTF = "CELLPATHR";
 	public static enum OBX_DATA_TYPES {NM,ST,CE,TX,FT} // Numeric, String, Coded Element, Text, String
+
+    // OBR-25
+    /*
+     * the value "C" supersedes all others and the mimimum requirement is that the overall report status be displayed as "Corrected." 
+     * the value "A" or "I" supersedes "F" or Completed and the requirement is that the overall report status be displayed as "Pending" or "Partial."
+     */
+    public enum OrderStatus {
+        CORRECTED("C", "Corrected"),
+        PENDING("I", "Pending"),
+        PARTIAL_RESULTS("A", "Partial results"),
+        PRELIMINARY("P", "Preliminary"),
+        COMPLETED("F", "Completed"),
+        RETRANSMITTED("R", "Retransmitted"),
+        DELETED("X", "Deleted");
+
+        private final String code;
+        private final String description;
+
+        OrderStatus(String code, String description) {
+            this.code = code;
+            this.description = description;
+        }
+
+        public String getCode() { return code; }
+        public String getDescription() { return description; }
+    }
 
     /** Creates a new instance */
     public ExcellerisOntarioHandler() {
@@ -245,19 +273,21 @@ public class ExcellerisOntarioHandler implements MessageHandler {
 
             String accessionNum = getString(str);
 
-            String[] nums = accessionNum.split("-");
-            if (nums.length == 3){
-                return nums[0];
-            }else if (nums.length == 5){
-                return nums[0]+"-"+nums[1]+"-"+nums[2];
-            }else{
+            // String[] nums = accessionNum.split("-");
+            // if (nums.length == 3){
+            //     return nums[0];
+            // }else if (nums.length == 5){
+            //     return nums[0]+"-"+nums[1]+"-"+nums[2];
+            // }else{
 
 
-                if(nums.length>1)
-                    return nums[0]+"-"+nums[1];
-                else
-                    return "";
-            }
+            //     if(nums.length>1)
+            //         return nums[0]+"-"+nums[1];
+            //     else
+            //         return "";
+            // }
+
+            return accessionNum;
         }catch(Exception e){
             logger.error("Could not return accession number", e);
 
@@ -277,6 +307,14 @@ public class ExcellerisOntarioHandler implements MessageHandler {
     public String getOBRName(int i){
         try{
             return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBR().getObr4_UniversalServiceID().getText().getValue()));
+        }catch(Exception e){
+            return("");
+        }
+    }
+
+    public String getOBRIdentifier(int i){
+        try{
+            return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBR().getObr4_UniversalServiceID().getCe1_Identifier().getValue()));
         }catch(Exception e){
             return("");
         }
@@ -332,61 +370,82 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         }
     }
 
+    //OBR-22
+    public String getReportStatusChangeDate(int i) {
+        try{
+            return(formatDateTime(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBR().getResultsRptStatusChngDateTime().getTimeOfAnEvent().getValue())));
+        }catch(Exception e){
+            return("");
+        }
+    }
+
     //OBR-25
     /*
-     * I  = pending
-P = preliminary
-A = partial results
-F = complete
-R = Retransmitted
-C = corrected
-X = deleted (available on request; not always preceded by non-X OBRs in an earlier transmission)
-
-     * @see oscar.oscarLab.ca.all.parsers.MessageHandler#getOrderStatus()
-     */
+    * I = pending
+    * P = preliminary
+    * A = partial results
+    * F = complete
+    * R = retransmitted
+    * C = corrected
+    * X = deleted (available on request; not always preceded by non-X OBRs in an earlier transmission)
+    *
+    * @see oscar.oscarLab.ca.all.parsers.MessageHandler#getOrderStatus()
+    */
     public String getOrderStatus(){
-    	String orderStatus = null;
+    	Set<String> orderStatuses = new HashSet<>();
         try{
         	for(int x=0;x<msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTIReps();x++) {
         		ORU_R01_PIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI items =  msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI(x);
         		for(int y=0;y<items.getORCOBRNTEOBXNTECTIReps();y++) {
         			String status = items.getORCOBRNTEOBXNTECTI(y).getOBR().getResultStatus().getValue();
-        			if(orderStatus == null && status != null) {
-            			orderStatus = status;
-            		}
-            		if("C".equals(status)) {
-            			return "corrected";
-            		}
+        			if(status == null) { continue; }
+                    orderStatuses.add(status);
         		}
         		
         	}
         	
-            if("P".equals(orderStatus)) {
-            	return "preliminary";
-            }
-            if("I".equals(orderStatus)) {
-            	return "pending";
-            }
-            if("A".equals(orderStatus)) {
-            	return "partial results";
-            }
-            if("F".equals(orderStatus)) {
-            	return "complete";
-            }
-            if("R".equals(orderStatus)) {
-            	return "retransmitted";
-            }
-            if("C".equals(orderStatus)) {
-            	return "corrected";
-            }
-            if("X".equals(orderStatus)) {
-            	return "deleted";
+            /*
+             * the value "C" supersedes all others and the mimimum requirement is that the overall report status be displayed as "Corrected." 
+             * the value "A" or "I" supersedes "F" or Completed and the requirement is that the overall report status be displayed as "Pending" or "Partial."
+             */
+            for (OrderStatus status : OrderStatus.values()) {
+                if (!orderStatuses.contains(status.getCode())) { continue; }
+                return status.getDescription();
             }
         }catch(Exception e){
             return("");
         }
         
         return "N/A";
+    }
+
+    /*
+     * All Reports/Tests that contain an OBR.25 value of "I", "P", and "C" need to be individually identified on the report display.
+     */
+    public String getOrderStatus(int y) {
+        String statusDescription = "";
+        try {
+            String status = getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(y).getOBR().getResultStatus().getValue());
+            
+            for (OrderStatus orderStatus : OrderStatus.values()) {
+                if (status.equals(orderStatus.getCode())) {
+                    switch (orderStatus) {
+                        case PENDING:
+                            statusDescription = "Results are pending...";
+                            break;
+                        case PRELIMINARY:
+                        case CORRECTED:
+                            statusDescription = orderStatus.getDescription();
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            //
+        }
+        return statusDescription;
     }
 
     //OBR-16
@@ -532,7 +591,7 @@ X = deleted (available on request; not always preceded by non-X OBRs in an earli
             return("");
         }
     }
-    
+
     public String getOBXResult(int i, int j){
         try{
             return(getString(Terser.get(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getOBX(),5,0,1,1)));
@@ -549,7 +608,21 @@ X = deleted (available on request; not always preceded by non-X OBRs in an earli
         try{
             return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getOBX().getObx4_ObservationSubID().getValue() ) );
         }catch(Exception e){
-            return(null);
+            return "";
+        }
+    }
+
+    //OBX4 + OBX-5
+    public String getOBXSubIdWithObservationValue(int i, int j) {
+        try{
+            String subId = getOBXSubId(i, j);
+            String observationResult = getOBXResult(i, j);
+            if (observationResult.length() == 1) {
+                observationResult =  getOBXName(i, j) + " " + observationResult; 
+            }
+            return subId + ") " + observationResult;
+        }catch(Exception e){
+            return "";
         }
     }
 
