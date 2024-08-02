@@ -139,12 +139,8 @@
   String phone = session.getAttribute("phone")!=null? (String) session.getAttribute("phone") : session.getAttribute("labHphone")!=null? (String) session.getAttribute("labHphone") : props.getProperty("phoneprefix", "905-");
   String phone2 = session.getAttribute("labWphone")!=null? (String) session.getAttribute("labWphone") : "";
   String dob = session.getAttribute("labDOB")!=null? (String) session.getAttribute("labDOB") : "";
-  String[] split = StringUtils.split(session.getAttribute("labHIN")!=null? (String) session.getAttribute("labHIN") : "");
-  String hin = split[0];
-  String ver = "";
-  if(split.length > 1) {
-    ver = split[1];
-  };
+  String hin = session.getAttribute("labHIN")!=null? (String) session.getAttribute("labHIN") : "";
+  String ver = session.getAttribute("labHINver")!=null? (String) session.getAttribute("labHINver") : "";
   String sex = session.getAttribute("labSex")!=null? (String) session.getAttribute("labSex") : "";
 
   WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
