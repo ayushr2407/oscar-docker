@@ -386,7 +386,7 @@ public class CMLHandler implements MessageHandler {
     	String value = getString(msg.getRESPONSE().getPATIENT().getPID().getAlternatePatientID().getID().getValue());
         String version = getString(msg.getRESPONSE().getPATIENT().getPID().getAlternatePatientID().getCheckDigit().getValue()); //PID.4.2
         if(!StringUtils.isNullOrEmpty(version)) {
-    		value = value + " " + version;
+    		value = value + version; //concat the version to the HIN without a space!
     	} 
     	//International Student HIN - https://sourceforge.net/p/oscarmcmaster/feature-requests/1003/
         if(StringUtils.isNullOrEmpty(value) && msg.getRESPONSE().getPATIENT().getPID().getPatientIDExternalID() != null) {
