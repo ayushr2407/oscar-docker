@@ -564,9 +564,9 @@ public class MDSHandler implements MessageHandler {
         try{
             String healthNum = getString(DynamicHapiLoaderUtils.terserGet(terser,"/.PID-19-1"));
             int end = healthNum.indexOf(" ");
-            //if (end > 0)
-            //    return(healthNum.substring(1, end));
-            //else
+            if (end > 0)
+                return(healthNum.substring(1, end));
+            else
                 return(healthNum.substring(1));
         }catch(Exception e){
             return("");
