@@ -140,7 +140,11 @@
   String phone2 = session.getAttribute("labWphone")!=null? (String) session.getAttribute("labWphone") : "";
   String dob = session.getAttribute("labDOB")!=null? (String) session.getAttribute("labDOB") : "";
   String hin = session.getAttribute("labHIN")!=null? (String) session.getAttribute("labHIN") : "";
-  String ver = session.getAttribute("labHINver")!=null? (String) session.getAttribute("labHINver") : "";
+  String ver = "";
+  if (hin.length() == 12 && Character.isDigit(hin.charAt(1))) { //likely Ontario
+    ver = hin.substring(11);
+    hin = hin.substring(0,10);
+  }
   String sex = session.getAttribute("labSex")!=null? (String) session.getAttribute("labSex") : "";
 
   WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
