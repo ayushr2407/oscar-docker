@@ -139,7 +139,12 @@
   String phone = session.getAttribute("phone")!=null? (String) session.getAttribute("phone") : session.getAttribute("labHphone")!=null? (String) session.getAttribute("labHphone") : props.getProperty("phoneprefix", "905-");
   String phone2 = session.getAttribute("labWphone")!=null? (String) session.getAttribute("labWphone") : "";
   String dob = session.getAttribute("labDOB")!=null? (String) session.getAttribute("labDOB") : "";
-  String hin = session.getAttribute("labHIN")!=null? (String) session.getAttribute("labHIN") : "";
+  String[] split = StringUtils.split(session.getAttribute("labHIN")!=null? (String) session.getAttribute("labHIN") : "");
+  String hin = split[0];
+  String ver = "";
+  if(split.length > 1) {
+    ver = split[1];
+  };
   String sex = session.getAttribute("labSex")!=null? (String) session.getAttribute("labSex") : "";
 
   WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
@@ -1690,11 +1695,11 @@ data-validation-pattern-message="<bean:message key="demographic.demographiceditd
             <bean:message key="demographic.demographiceditdemographic.formVer" />
             <input type="text" placeholder="<bean:message key="demographic.demographiceditdemographic.formVer" />"
                     name="ver" style="width: 40px;"
-
-									onBlur="upCaseCtrl(this)" id="verBox">
-									<%if("online".equals(oscarProps.getProperty("hcv.type", "simple"))) { %>
-										<input type="button" class="btn" value="Validate" onClick="validateHC()"/>
-									<% } %>
+                    value="<%=Encode.forHtmlAttribute(ver)%>"
+					onBlur="upCaseCtrl(this)" id="verBox">
+					<%if("online".equals(oscarProps.getProperty("hcv.type", "simple"))) { %>
+					  <input type="button" class="btn" value="Validate" onClick="validateHC()"/>
+					<% } %>
             </div>
         </div>
         <div class="control-group span5">
