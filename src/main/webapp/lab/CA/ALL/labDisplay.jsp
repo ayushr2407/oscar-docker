@@ -526,7 +526,8 @@ input[id^='acklabel_']{
                     session.setAttribute("labLastName",handler.getLastName());
 					session.setAttribute("labFirstName",handler.getFirstName());
                     session.setAttribute("labDOB",handler.getDOB());
-					session.setAttribute("labHIN",handler.getHealthNum());
+					session.setAttribute("labHIN",handler.getHealthNum);
+                    session.setAttribute("labHINver",handler.getHealthNumVersion();
                     session.setAttribute("labHphone",handler.getHomePhone());
 					session.setAttribute("labWphone",handler.getWorkPhone());
                     session.setAttribute("labSex",handler.getSex());
