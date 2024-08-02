@@ -142,7 +142,7 @@
   String hin = session.getAttribute("labHIN")!=null? (String) session.getAttribute("labHIN") : "";
   String ver = "";
   if (hin.length() == 12 && Character.isDigit(hin.charAt(1))) { //likely Ontario
-    ver = hin.substring(11);
+    ver = hin.substring(10);
     hin = hin.substring(0,10);
   }
   String sex = session.getAttribute("labSex")!=null? (String) session.getAttribute("labSex") : "";
