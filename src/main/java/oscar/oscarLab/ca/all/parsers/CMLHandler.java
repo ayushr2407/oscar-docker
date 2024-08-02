@@ -383,18 +383,20 @@ public class CMLHandler implements MessageHandler {
     }
 
     public String getHealthNum(){
-    	//International Student HIN - https://sourceforge.net/p/oscarmcmaster/feature-requests/1003/
     	String value = getString(msg.getRESPONSE().getPATIENT().getPID().getAlternatePatientID().getID().getValue());
-        value = value + getString(msg.getRESPONSE().getPATIENT().getPID().getAlternatePatientID().getCheckDigit().getValue()); //PID.4.2
-    	if(StringUtils.isNullOrEmpty(value) && msg.getRESPONSE().getPATIENT().getPID().getPatientIDExternalID() != null) {
+        String version = getString(msg.getRESPONSE().getPATIENT().getPID().getAlternatePatientID().getCheckDigit().getValue()); //PID.4.2
+        if(!StringUtils.isNullOrEmpty(version)) {
+    		value = value + " " + version;
+    	} 
+    	//International Student HIN - https://sourceforge.net/p/oscarmcmaster/feature-requests/1003/
+        if(StringUtils.isNullOrEmpty(value) && msg.getRESPONSE().getPATIENT().getPID().getPatientIDExternalID() != null) {
     		if(msg.getRESPONSE().getPATIENT().getPID().getPatientIDExternalID().getID() != null) {
     			String tmp = getString(msg.getRESPONSE().getPATIENT().getPID().getPatientIDExternalID().getID().getValue());
     			if(tmp != null && tmp.startsWith("MU")) {
     				value = tmp.substring(2);
     			}
     		}
-    	}
-    	
+    	}  	
         return(value);
     }
 
