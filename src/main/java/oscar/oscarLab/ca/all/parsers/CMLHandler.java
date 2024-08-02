@@ -399,6 +399,11 @@ public class CMLHandler implements MessageHandler {
     	}  	
         return(value);
     }
+    
+    public String getHealthNumVersion(){
+        String value = getString(msg.getRESPONSE().getPATIENT().getPID().getAlternatePatientID().getCheckDigit().getValue()); //PID.4.2
+        return(value);
+    }     
 
     public String getHomePhone(){
         String phone = "";
