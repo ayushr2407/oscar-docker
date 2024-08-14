@@ -121,6 +121,7 @@ CREATE TABLE `CVCImmunization` (
   `ispa` tinyint(1) DEFAULT NULL,
   `typicalDose` varchar(255) DEFAULT NULL,
   `typicalDoseUofM` varchar(255) DEFAULT NULL,
+  `route` varchar(10) DEFAULT NULL,
   `strength` varchar(255) DEFAULT NULL,
   `shelfStatus` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -3491,7 +3492,7 @@ CREATE TABLE `favorites` (
   `favoriteid` int(10) NOT NULL AUTO_INCREMENT,
   `provider_no` varchar(6) NOT NULL DEFAULT '',
   `favoritename` varchar(50) NOT NULL DEFAULT '',
-  `BN` varchar(30) DEFAULT NULL,
+  `BN` varchar(255) DEFAULT NULL,
   `GCN_SEQNO` decimal(10,0) NOT NULL DEFAULT '0',
   `customName` varchar(60) DEFAULT NULL,
   `takemin` float DEFAULT NULL,
@@ -11496,7 +11497,7 @@ CREATE TABLE `hl7TextInfo` (
   `discipline` varchar(100) DEFAULT NULL,
   `last_name` varchar(30) DEFAULT NULL,
   `first_name` varchar(30) DEFAULT NULL,
-  `report_status` varchar(10) NOT NULL,
+  `report_status` varchar(20) NOT NULL,
   `accessionNum` varchar(255) DEFAULT NULL,
   `filler_order_num` varchar(50) DEFAULT NULL,
   `sending_facility` varchar(50) DEFAULT NULL,
@@ -12084,7 +12085,7 @@ CREATE TABLE `measurementMap` (
   `loinc_code` varchar(20) NOT NULL,
   `ident_code` varchar(20) NOT NULL,
   `name` varchar(255) DEFAULT NULL,
-  `lab_type` varchar(10) NOT NULL,
+  `lab_type` varchar(20) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `ident_code` (`ident_code`)
 );
@@ -12116,7 +12117,7 @@ CREATE TABLE `measurementType` (
 CREATE TABLE `measurementTypeDeleted` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `type` varchar(50) NOT NULL,
-  `typeDisplayName` varchar(20) NOT NULL,
+  `typeDisplayName` varchar(255) NOT NULL,
   `typeDescription` varchar(255) NOT NULL,
   `measuringInstruction` varchar(255) NOT NULL,
   `validation` varchar(100) NOT NULL,

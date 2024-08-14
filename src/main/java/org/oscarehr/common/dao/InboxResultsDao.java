@@ -554,11 +554,11 @@ public class InboxResultsDao {
 
 				lbData.requestingClient = "";
 
-				lbData.reportStatus = "F";
+				//lbData.reportStatus = "F";
 
 
 				// the "C" is for corrected excelleris labs
-				if (lbData.reportStatus != null && (lbData.reportStatus.equals("F") || lbData.reportStatus.equals("C"))) {
+				if (lbData.reportStatus != null && ( lbData.reportStatus.equals("F") || lbData.reportStatus.equals("C") || lbData.reportStatus.equals("Completed") ) ) {
 					lbData.finalRes = true;
 				} else if (lbData.reportStatus != null && lbData.reportStatus.equals("X")){
 					lbData.cancelledReport = true;

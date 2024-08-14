@@ -132,10 +132,28 @@ public final class MessageUploader {
 			String accessionNum = h.getAccessionNum();
 			String fillerOrderNum = h.getFillerOrderNumber();
 			String sendingFacility = h.getPatientLocation();
-			ArrayList<?> docNums = h.getDocNums();
+			ArrayList<String> docNums = h.getDocNums();
 			int finalResultCount = h.getOBXFinalResultCount();
-			//String obrDate = h.getMsgDate();
-			String obrDate = h.getTimeStamp(0,0);
+			String obrDate = h.getTimeStamp(0,0); //this returns "" if the first ORC has no OBX
+			if (obrDate.isEmpty()){
+				logger.error("Error empty Time Stamp : "+obrDate);
+				// lets first iterate through the Time Stamps
+				int obrCount = h.getOBRCount();
+				for (int i=0; i < obrCount; i++) {
+					if (h.getTimeStamp(i,0) != ""){
+						obrDate = h.getTimeStamp(i,0);
+						logger.debug("Using TimeStamp : "+obrDate+" for OBR number : "+String.valueOf(i)+"/"+String.valueOf(obrCount));
+					}
+				}
+				if (obrDate.isEmpty()){
+					// lets use the date from the first OBR to get the obr date
+					obrDate = h.getServiceDate();
+					logger.debug("Using Service Date : "+obrDate);
+					if (obrDate.isEmpty()){
+						logger.error("Error empty Service Date");
+					}
+				}
+			}
 
 			if(h instanceof HHSEmrDownloadHandler) {
 				try{
@@ -169,16 +187,19 @@ public final class MessageUploader {
 			}
 
 			try {
-				// reformat date 2012-01-20 00:00:00 EST
+				// reformat 20240718132400 date 2012-01-20 00:00:00 EST
 				if(obrDate.length() == 23) {
 					//obrDate = obrDate.substring(0, 19);
 					obrDate = UtilDateUtilities.DateToString(UtilDateUtilities.StringToDate(obrDate, "yyyy-MM-dd HH:mm:ss z"), "yyyy-MM-dd HH:mm:ss z");
 				} else {
-					String format = "yyyy-MM-dd HH:mm:ss".substring(0, obrDate.length() - 1);
-					obrDate = UtilDateUtilities.DateToString(UtilDateUtilities.StringToDate(obrDate, format), "yyyy-MM-dd HH:mm:ss");
+					if(obrDate.length() > 1){
+						String format = "yyyy-MM-dd HH:mm:ss".substring(0, obrDate.length() - 1);
+						obrDate = UtilDateUtilities.DateToString(UtilDateUtilities.StringToDate(obrDate, format), "yyyy-MM-dd HH:mm:ss");
+					}
 				}
+				logger.debug("Using obr date : "+obrDate);
 			} catch (Exception e) {				
-				logger.error("Error parsing obr date : ", e);
+				logger.error("Error parsing obr date : "+obrDate, e);
 				throw e;
 			}
 
@@ -262,6 +283,7 @@ public final class MessageUploader {
 				hl7TextInfo.setReportStatus(reportStatus);
 				hl7TextInfo.setAccessionNumber(accessionNum);
 				hl7TextInfo.setFillerOrderNum(fillerOrderNum);
+				hl7TextInfo.setSendingFacility(sendingFacility);
 				hl7TextInfoDao.persist(hl7TextInfo);
 			}
 			
@@ -293,7 +315,7 @@ public final class MessageUploader {
 				try {
 					c.close();
 				}catch(SQLException e) {
-					
+					logger.error("SQL error for patient routing",e);
 				}
 			}
 			if(type.equals("OLIS_HL7") && demProviderNo.equals("0")) {
@@ -311,21 +333,21 @@ public final class MessageUploader {
 					try {
 						c.close();
 					}catch(SQLException e) {
-						
+						logger.error("SQL error for provider routing",e);
 					}
 				}
 			} else {
 				Integer limit = null;
 				boolean orderByLength = false;
-				String search = null;
+				String search = null;  // null search defaults to <oscarDB>.Provider.ohip_no
 				if (type.equals("Spire")) {
 					limit = new Integer(1);
 					orderByLength = true;
-					search = "provider_no";
+					search = "provider_no"; //ie the OSCAR <oscarDB>.Provider.provider_no
 				}
 				
 				if( "MEDITECH".equals(type) ) {
-					search = "practitionerNo";
+					search = "practitionerNo"; // ie the college number <oscarDB>.Provider.practitionerNo
 				}
 				
 				if( "IHAPOI".equals(type) ) {
@@ -339,7 +361,7 @@ public final class MessageUploader {
 					try {
 						c.close();
 					}catch(SQLException e) {
-						
+						logger.error("SQL error for provider routing",e);
 					}
 				}
 			}
@@ -348,7 +370,7 @@ public final class MessageUploader {
 				results.segmentId = insertID;
 			}
 		} catch (Exception e) {
-			logger.error("Error uploading lab to database");
+			logger.error("SQL error uploading lab to database",e);
 			throw e;
 		}
 
@@ -417,7 +439,7 @@ public final class MessageUploader {
 	/**
 	 * Attempt to match the doctors from the lab to a provider
 	 */ 
-	private static void providerRouteReport(String labId, ArrayList<?> docNums, Connection conn, String altProviderNo, String labType, String search_on, Integer limit, boolean orderByLength) throws Exception {
+	private static void providerRouteReport(String labId, ArrayList<String> docNums, Connection conn, String altProviderNo, String labType, String search_on, Integer limit, boolean orderByLength) throws Exception {
 		ArrayList<String> providerNums = new ArrayList<String>();
 		PreparedStatement pstmt;
 		String sql = "";
@@ -440,9 +462,9 @@ public final class MessageUploader {
 		if (docNums != null) {
 			for (int i = 0; i < docNums.size(); i++) {
 
-				if (docNums.get(i) != null && !((String) docNums.get(i)).trim().equals("")) {
+				if (docNums.get(i) != null && !(docNums.get(i)).trim().equals("")) {
 					if("ON".equals(OscarProperties.getInstance().getProperty("billregion","ON"))) {
-						StringBuilder practitionerNum = new StringBuilder(((String)docNums.get(i)).trim());
+						StringBuilder practitionerNum = new StringBuilder((docNums.get(i)).trim());
 						if( sqlSearchOn.equalsIgnoreCase("ohip_no")) {
 							while( practitionerNum.length() < 6 ) {
 								practitionerNum.insert(0, "0");
@@ -450,7 +472,7 @@ public final class MessageUploader {
 						}
 						sql = "select provider_no from provider where "+ sqlSearchOn +" = '" + practitionerNum.toString() + "'" + sqlOrderByLength + sqlLimit;
 					} else {
-						sql = "select provider_no from provider where "+ sqlSearchOn +" LIKE '" + ((String) docNums.get(i)) + "'" + sqlOrderByLength + sqlLimit;
+						sql = "select provider_no from provider where "+ sqlSearchOn +" LIKE '" + (docNums.get(i)) + "'" + sqlOrderByLength + sqlLimit;
 					}
 					pstmt = conn.prepareStatement(sql);
 					ResultSet rs = pstmt.executeQuery();
@@ -462,7 +484,7 @@ public final class MessageUploader {
 
 					String otherIdMatchKey = OscarProperties.getInstance().getProperty("lab.other_id_matching", "");
 					if(otherIdMatchKey.length()>0) {
-						OtherId otherId = OtherIdManager.searchTable(OtherIdManager.PROVIDER, otherIdMatchKey, (String)docNums.get(i));
+						OtherId otherId = OtherIdManager.searchTable(OtherIdManager.PROVIDER, otherIdMatchKey, docNums.get(i));
 						if(otherId != null) {
 							providerNums.add(otherId.getTableId());
 						}
@@ -629,6 +651,7 @@ public final class MessageUploader {
 				}
 				
 			} catch (SQLException sqlE) {
+				logger.error("error with sql : "+sql,sqlE);
 				throw sqlE;
 			}
 
@@ -672,7 +695,7 @@ public final class MessageUploader {
 						pstmt.close();	
 						c.close();
 					}catch(SQLException e) {
-						
+						logger.error("error with sql : "+sql,e);
 					}
 				}
 				
@@ -706,7 +729,7 @@ public final class MessageUploader {
 
 			
 			try {
-	
+				if (hin.equalsIgnoreCase("UNKNOWN")) { hin = ""; }
 				if (hin != null) {
 					hinMod = new String(hin);
 					if (hinMod.length() == 12) {
@@ -714,41 +737,59 @@ public final class MessageUploader {
 					}
 				}
 	
-				if (dob != null && !dob.equals("")) {
+				if (dob != null && !dob.equals("") && !dob.equalsIgnoreCase("UNKNOWN")) {
 					String[] dobArray = dob.trim().split("-");
-					dobYear = dobArray[0];
-					dobMonth = dobArray[1];
-					dobDay = dobArray[2];
+					if (dobArray.length == 3) {
+						dobYear = dobArray[0];
+						dobMonth = dobArray[1];
+						dobDay = dobArray[2];
+					}
 				}
-	
 				
+				int parameterSet = 0;
 				// if no hin but there is a dob try for a complete match against the full name
 				if( ( hinMod == null || hinMod.equals("") ) && (dob != null && !dob.equals("")) ) {
-					sql = "select demographic_no, provider_no from demographic where" + " last_name like '" + lastName + "%' and " + " first_name like '" + firstName + "%' and " + " year_of_birth like '" + dobYear + "' and " + " month_of_birth like '" + dobMonth + "' and " + " date_of_birth like '" + dobDay + "' and " + " sex like '" + sex + "%' ";
+					logger.debug("Finding demo for given name : "+firstName+"% surname : "+lastName+"% with dob y/m/d : "+dobYear+"/"+dobMonth+"/"+dobDay+" sex of : "+sex);
+					sql = "select demographic_no, provider_no from demographic where year_of_birth like ? and month_of_birth like ? and date_of_birth like ? and ( sex like ? OR sex NOT IN ('F', 'M') ) and last_name like ? and first_name like ?";
+					parameterSet = 6;
 				}
 
 				// only the first letter of names
-				if (!firstName.equals("")) firstName = firstName.substring(0, 1);
-				if (!lastName.equals("")) lastName = lastName.substring(0, 1);
-	
-				// there are too many wild cards for this query to work with any amount of accuracy.
-//				if (hinMod.equals("%")) {
-//					sql = "select demographic_no, provider_no from demographic where" + " last_name like '" + lastName + "%' and " + " first_name like '" + firstName + "%' and " + " year_of_birth like '" + dobYear + "' and " + " month_of_birth like '" + dobMonth + "' and " + " date_of_birth like '" + dobDay + "' and " + " sex like '" + sex + "%' ";
-//				} 
+				if (firstName.length() > 0) { firstName = firstName.substring(0, 1);}
+				if (lastName.length() > 0) { lastName = lastName.substring(0, 1);}
 				
 				// HIN is ALWAYS required for lab matching. Please do not revert this code. Previous iterations have caused fatal patient miss-matches.	
 				// relax need to match gender for non binary labeled demographics " ( sex like '"+sex+"%' OR sex NOT IN ('F','M') ";
 				if( hinMod != null && !hinMod.equals("") ) {
+					logger.debug("Finding demo for given name : "+firstName+"% surname : "+lastName+"% with hinMod : "+hinMod+" dob y/m/d : "+dobYear+"/"+dobMonth+"/"+dobDay+" sex* of : "+sex);
 					if (OscarProperties.getInstance().getBooleanProperty("LAB_NOMATCH_NAMES", "yes")) {
-						sql = "select demographic_no, provider_no from demographic where hin='" + hinMod + "' and " + " year_of_birth like '" + dobYear + "' and " + " month_of_birth like '" + dobMonth + "' and " + " date_of_birth like '" + dobDay + "' and " + " ( sex like '" + sex + "%' OR sex NOT IN ('F', 'M') )";
+						sql = "select demographic_no, provider_no from demographic where year_of_birth like ? and month_of_birth like ? and date_of_birth like ? and ( sex like ? OR sex NOT IN ('F', 'M') ) and hin=?";
+						parameterSet = 5;
 					} else {
-						sql = "select demographic_no, provider_no from demographic where hin='" + hinMod + "' and " + " last_name like '" + lastName + "%' and " + " first_name like '" + firstName + "%' and " + " year_of_birth like '" + dobYear + "' and " + " month_of_birth like '" + dobMonth + "' and " + " date_of_birth like '" + dobDay + "' and " + " ( sex like '" + sex + "%' OR sex NOT IN ('F', 'M') )";
+						sql = "select demographic_no, provider_no from demographic where year_of_birth like ? and month_of_birth like ? and date_of_birth like ? and ( sex like ? OR sex NOT IN ('F', 'M') ) and last_name like ? and first_name like ? and hin=?";
+						parameterSet = 7;
 					}
 				}
 				
 				if( sql != null ) {
 					logger.debug(sql);
 					PreparedStatement pstmt = conn.prepareStatement(sql);
+					if (parameterSet > 4){
+						pstmt.setString(1, dobYear);
+						pstmt.setString(2, dobMonth);
+						pstmt.setString(3, dobDay);
+						pstmt.setString(4, sex+"%");
+					}
+					if (parameterSet == 5){
+						pstmt.setString(5, hinMod);
+					}
+					if (parameterSet > 5){
+						pstmt.setString(5, lastName+"%");
+						pstmt.setString(6, firstName+"%");
+					}
+					if (parameterSet > 6){	
+						pstmt.setString(7, hinMod);
+					}
 					ResultSet rs = pstmt.executeQuery();
 					int count = 0;
 					
@@ -767,6 +808,7 @@ public final class MessageUploader {
 					}
 				}
 			} catch (SQLException sqlE) {
+				logger.error("error with sql : "+sql,sqlE);
 				throw sqlE;
 			}
 
@@ -810,7 +852,7 @@ public final class MessageUploader {
 						pstmt.close();	
 						c.close();
 					}catch(SQLException e) {
-						
+						logger.error("error with sql : "+sql,e);	
 					}
 				}
 				
@@ -829,7 +871,7 @@ public final class MessageUploader {
 	public static void clean(int fileId) {
 		
 		List<Hl7TextMessage> results = hl7TextMessageDao.findByFileUploadCheckId(fileId);
-		
+		logger.info("cleaning up database due to prior errors");
 
 		for (Hl7TextMessage result:results) {
 			int lab_id = result.getId();

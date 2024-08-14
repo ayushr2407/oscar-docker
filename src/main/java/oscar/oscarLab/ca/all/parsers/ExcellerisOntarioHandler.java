@@ -82,7 +82,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
     public enum OrderStatus {
         CORRECTED("C", "Corrected"),
         PENDING("I", "Pending"),
-        PARTIAL_RESULTS("A", "Partial results"),
+        PARTIAL_RESULTS("A", "Partial"),
         PRELIMINARY("P", "Preliminary"),
         COMPLETED("F", "Completed"),
         RETRANSMITTED("R", "Retransmitted"),
@@ -115,6 +115,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
     }
 
     public String getMsgPriority(){
+        logger.info("getMsgPriority is not implimented in Excelleris");
         return("");
     }
    
@@ -170,12 +171,12 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(formatDateTime(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getPIDPD1NK1NTEPV1PV2().getPID().getPid7_DateTimeOfBirth().getTimeOfAnEvent().getValue())).substring(0, 10));
         }catch(Exception e){
-            return("");
+            return("UNKNOWN");
         }
     }
 
     public String getAge(){
-        String age = "N/A";
+        String age = "UNKNOWN";
         String dob = getDOB();
         String service = getServiceDate(); 
         try {
@@ -211,7 +212,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
     		
     		return(getString(hin + ver));
     	}
-    	return "";
+    	return "UNKNOWN"; //this is used in LabPDFcreator
         
     }
 
@@ -231,8 +232,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
             }
             return(phone);
         }catch(Exception e){
-            logger.error("Could not return phone number", e);
-
+            logger.error("Could not return home phone number", e);
             return("");
         }
     }
@@ -253,7 +253,6 @@ public class ExcellerisOntarioHandler implements MessageHandler {
             return(phone);
         }catch(Exception e){
             logger.error("Could not return phone number", e);
-
             return("");
         }
     }
@@ -265,41 +264,31 @@ public class ExcellerisOntarioHandler implements MessageHandler {
 
     
     //ORC-3
-    //Order ID of lab performing tests (accession number-test code-tiebreaker)
+    //Order ID of lab performing tests (accession number-test code tiebreaker) eg 2017-EMR40038-2_TR12001-4
     public String getAccessionNum(){
         try{
-
             String str=msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(0).getORC().getFillerOrderNumber().getEntityIdentifier().getValue();
-
             String accessionNum = getString(str);
-
-            // String[] nums = accessionNum.split("-");
-            // if (nums.length == 3){
-            //     return nums[0];
-            // }else if (nums.length == 5){
-            //     return nums[0]+"-"+nums[1]+"-"+nums[2];
-            // }else{
-
-
-            //     if(nums.length>1)
-            //         return nums[0]+"-"+nums[1];
-            //     else
-            //         return "";
-            // }
-
-            return accessionNum;
+            String[] nums = accessionNum.split("-");
+            if (nums.length == 5){
+                return nums[0]+"-"+nums[1]+"-"+nums[2];
+            }else{
+                if(nums.length>1) { // 2017-EMR40038-2_TR12001-4, 2023-OSC240472-KLIN
+                    return nums[0]+"-"+nums[1];
+                }else{
+                    // Current spec it should never get here, but if it does, lets return what we got
+                    logger.debug("Unable to parse Accession so returning entire Order ID : "+accessionNum);
+                    return accessionNum;  
+                }
+            }         
         }catch(Exception e){
             logger.error("Could not return accession number", e);
-
             return("");
         }
     }
 
-   
-    
-    public int getOBRCount(){
-    	
-    	
+      
+    public int getOBRCount(){  	    	
         return(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTIReps());
     }
 
@@ -352,13 +341,33 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         }
     }
 
-    //OBR-7
-    public String getServiceDate(){
-        try{
-            return(formatDateTime(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(0).getOBR().getObservationDateTime().getTimeOfAnEvent().getValue())));
-        }catch(Exception e){
-            return("");
+    //OBR-7 Observation Date/Time there may be several, the earliest is expected   
+     public String getServiceDate(){   
+        int obrCount = getOBRCount();
+        logger.debug("obrCount :" + String.valueOf(obrCount));
+        String earliestReportObservation = "";
+        List<String> reportObservationDates = new ArrayList<>();
+        for (int i = 0; i < obrCount; i++) {
+            try {
+                String date = getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBR().getObservationDateTime().getTimeOfAnEvent().getValue());
+                if (date.length() > 14) {
+                    date = date.substring(0,14);        
+                }
+                if (!date.isEmpty() && date.length() < 14) {
+                    // right pad with 0's for comparison
+                    date = String.format("%-14s", date ).replace(' ', '0');
+                }
+                reportObservationDates.add(date);
+                //logger.debug(" DATE found : " + date + " for i : " + String.valueOf(i));
+            } catch(Exception e){
+                reportObservationDates.add("");
+            }
+        }       
+        for (String reportObservationDate : reportObservationDates) {
+            if (earliestReportObservation.isEmpty() || reportObservationDate.compareTo(earliestReportObservation) < 0) { earliestReportObservation = reportObservationDate; }
         }
+        logger.debug("Service date set at  : " + earliestReportObservation);
+        return earliestReportObservation.isEmpty() ? earliestReportObservation : formatDateTime(earliestReportObservation);
     }
 
     //OBR-6
@@ -366,6 +375,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(formatDateTime(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBR().getRequestedDateTime().getTimeOfAnEvent().getValue())));
         }catch(Exception e){
+            logger.error("Could not return Request Date", e);
             return("");
         }
     }
@@ -377,6 +387,27 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         }catch(Exception e){
             return("");
         }
+    }
+    
+    //OBR-22
+    // overloaded
+    public String getReportStatusChangeDate() {
+        int obrCount = getOBRCount();
+        String latestReportStatusChangeDate = "";
+        List<String> reportStatusChangeDates = new ArrayList<>();
+        for (int i = 0; i < obrCount; i++) {
+            try {
+                String date = getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBR().getResultsRptStatusChngDateTime().getTimeOfAnEvent().getValue());
+                reportStatusChangeDates.add(date);
+            } catch(Exception e){
+                reportStatusChangeDates.add("");
+            }
+        }
+        
+        for (String reportStatusChangeDate : reportStatusChangeDates) {
+            if (latestReportStatusChangeDate.isEmpty() || reportStatusChangeDate.compareTo(latestReportStatusChangeDate) > 0) { latestReportStatusChangeDate = reportStatusChangeDate; }
+        }
+        return latestReportStatusChangeDate.isEmpty() ? latestReportStatusChangeDate : formatDateTime(latestReportStatusChangeDate);
     }
 
     //OBR-25
@@ -400,19 +431,36 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         			String status = items.getORCOBRNTEOBXNTECTI(y).getOBR().getResultStatus().getValue();
         			if(status == null) { continue; }
                     orderStatuses.add(status);
-        		}
-        		
-        	}
-        	
+        		}        		
+        	}   	
             /*
              * the value "C" supersedes all others and the mimimum requirement is that the overall report status be displayed as "Corrected." 
              * the value "A" or "I" supersedes "F" or Completed and the requirement is that the overall report status be displayed as "Pending" or "Partial."
              */
+            String descriptionC = "";
+            String descriptionA = "";
+            String description = "";
             for (OrderStatus status : OrderStatus.values()) {
                 if (!orderStatuses.contains(status.getCode())) { continue; }
-                return status.getDescription();
+                if (status.getCode() == "C") { descriptionC = status.getDescription(); }
+                if (status.getCode() == "A") { descriptionA = status.getDescription(); }
+                if (status.getCode() == "I") { descriptionA = status.getDescription(); }
+                description = status.getDescription();
             }
+            if (descriptionC.length() > 0) { 
+                if (descriptionA.length() > 0) {
+                    descriptionC = descriptionA + "/" + descriptionC;
+                }
+                return (descriptionC).trim();
+            }
+            if (descriptionA.length() > 0) {
+                    description = descriptionA;
+            }
+            if (description.length() > 0) {
+                   return description.trim();
+            }                
         }catch(Exception e){
+            logger.error("Could not return an overall Order Status", e);
             return("");
         }
         
@@ -437,13 +485,16 @@ public class ExcellerisOntarioHandler implements MessageHandler {
                         case CORRECTED:
                             statusDescription = orderStatus.getDescription();
                             break;
+                        case DELETED:
+                            statusDescription = orderStatus.getDescription();
+                            break;
                         default:
                             break;
                     }
                 }
             }
         } catch (Exception e) {
-            //
+           logger.error("Could not return Order Status for OBR " + String.valueOf(y), e);            
         }
         return statusDescription;
     }
@@ -485,7 +536,6 @@ public class ExcellerisOntarioHandler implements MessageHandler {
             return(docName);
         }catch(Exception e){
             logger.error("Could not return doctor names", e);
-
             return("");
         }
     }
@@ -561,6 +611,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getOBX().getObservationIdentifier().getIdentifier().getValue()));
         }catch(Exception e){
+            logger.debug("Could not return OBX Identifier", e);
             return("");
         }
     }
@@ -570,6 +621,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getOBX().getValueType().getValue()));
         }catch(Exception e){
+            logger.debug("Could not return OBX Value Type", e);
             return("");
         }
     }
@@ -579,6 +631,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getOBX().getObservationIdentifier().getText().getValue()));
         }catch(Exception e){
+            logger.debug("Could not return OBX Name", e);
             return("");
         }
     }
@@ -588,6 +641,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getOBX().getObservationIdentifier().getText().getValue()));
         }catch(Exception e){
+            logger.debug("Could not return OBX Name Long", e);
             return("");
         }
     }
@@ -596,6 +650,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(getString(Terser.get(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getOBX(),5,0,1,1)));
         }catch(Exception e){
+            logger.debug("Could not return OBX Result", e);
             return("");
         }
     }
@@ -608,6 +663,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getOBX().getObx4_ObservationSubID().getValue() ) );
         }catch(Exception e){
+            logger.debug("Could not return OBX Sub Id", e);
             return "";
         }
     }
@@ -617,11 +673,13 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             String subId = getOBXSubId(i, j);
             String observationResult = getOBXResult(i, j);
-            if (observationResult.length() == 1) {
-                observationResult =  getOBXName(i, j) + " " + observationResult; 
-            }
+            // spec is not to repeat the Name
+            //if (observationResult.length() == 1) {
+           //    observationResult =  getOBXName(i, j) + " " + observationResult; 
+          //  }
             return subId + ") " + observationResult;
         }catch(Exception e){
+            logger.debug("Could not return sub id and add the observation", e);
             return "";
         }
     }
@@ -631,6 +689,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getOBX().getReferencesRange().getValue()));
         }catch(Exception e){
+            logger.debug("Could not return reference range", e);
             return("");
         }
     }
@@ -640,6 +699,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getOBX().getUnits().getIdentifier().getValue()));
         }catch(Exception e){
+            logger.debug("Could not return units", e);
             return("");
         }
     }
@@ -649,6 +709,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getOBX().getObx11_ObservationResultStatus().getValue()));
         }catch(Exception e){
+            logger.debug("Could not return OBX status", e);
             return("");
         }
     }
@@ -683,6 +744,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(formatDateTime(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getOBX().getDateTimeOfTheObservation().getTimeOfAnEvent().getValue())));
         }catch(Exception e){
+            logger.error("Could not return Time Stamp", e);
             return("");
         }
     }
@@ -726,6 +788,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try {
             return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getNTE(k).getComment(0).getValue()));
         } catch (Exception e) {
+            logger.debug("No comment obtained for OBX for i="+String.valueOf(i)+" j="+String.valueOf(j), e);
             return("");
         }
     }
@@ -735,7 +798,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
     	 try{
              return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getOBX().getProducerSID().getCe1_Identifier().getValue()));
          }catch(Exception e){
-             logger.error("Error retrieving obx abnormal flag", e);
+             logger.error("Error retrieving LabLicenseNo", e);
              return("");
          }
     }
@@ -798,7 +861,63 @@ public class ExcellerisOntarioHandler implements MessageHandler {
     }
 
     public String audit(){
+        logger.info("audit is not implimented for Excelleris ON");
         return "";
+    }
+    
+    public String getFillerOrderNumber(){
+    	 try{
+             return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(0).getORC().getFillerOrderNumber().getEntityIdentifier().getValue()));
+         }catch(Exception e){
+             logger.error("Error retrieving filler order number (accession)", e);
+             return("");
+         }
+	}
+    
+    public String getEncounterId(){
+        logger.info("getEncounterId is not implimented for for Excelleris ON");
+    	return "";
+    }
+    
+    public String getRadiologistInfo(){
+        logger.info("getRadiologistInfo is not implimented for Excelleris ON");
+		return "";
+	}
+
+    public String getNteForOBX(int i, int j){
+		logger.info("getNteForOBX is not implimented for Excelleris ON");
+    	return "";
+    }
+
+	/*
+	 * Checks to see if the PATHL7 lab is an unstructured document or a VIHA RTF pathology report
+	 * labs that fall into any of these categories have certain requirements per Excelleris
+	*/
+	public boolean unstructuredDocCheck(String header){
+		return (labDocuments.contains(header));
+	}
+	public boolean vihaRtfCheck(String header){
+		return (header.equals(VIHARTF));
+	}
+
+    public String getNteForPID(){
+		logger.info("getNteForPID is not implimented here"); 	
+    	return "";
+    }
+    
+	/**
+	 * If the first OBX segment is presenting a textual report and the lab type is 
+	 * not in the unstructured (PATH or ITS) lab types.  
+	 * 
+	 */
+	public boolean isReportData() {		
+		return ( OBX_DATA_TYPES.TX.name().equals( getOBXValueType(0, 0) ) 
+				|| OBX_DATA_TYPES.FT.name().equals( getOBXValueType(0, 0) )  );		
+	}
+    
+    //for OMD validation
+    public boolean isTestResultBlocked(int i, int j) {
+    	return false;
     }
 
     /*
@@ -833,6 +952,21 @@ public class ExcellerisOntarioHandler implements MessageHandler {
 
 
     private String formatDateTime(String plain){
+        // formats plain yyyyMMddHHmmss string
+        // conformance requires empty string for missing time component
+        if (plain.length() == 14) { 
+            // remove 00 seconds timestamp value for readability
+            if ( plain.substring(12).equals("00") ) {
+                plain = plain.substring(0,12);
+            }
+        }
+        if (plain.length() == 12) { 
+            // remove 0000 hours and minutes timestamp value for readability
+            if ( plain.substring(8).equals("0000") ) {
+                plain = plain.substring(0,8);
+            }
+        } 
+    
     	String stringFormat = "yyyy-MM-dd HH:mm:ss";
         
     	if (plain==null || plain.trim().equals("")) return "";
@@ -858,50 +992,5 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         }
     }
 
-    public String getFillerOrderNumber(){
-		return "";
-	}
-    public String getEncounterId(){
-    	return "";
-    }
-    public String getRadiologistInfo(){
-		return "";
-	}
-
-    public String getNteForOBX(int i, int j){
-
-    	return "";
-    }
-
-	/*
-	 * Checks to see if the PATHL7 lab is an unstructured document or a VIHA RTF pathology report
-	 * labs that fall into any of these categories have certain requirements per Excelleris
-	*/
-	public boolean unstructuredDocCheck(String header){
-		return (labDocuments.contains(header));
-	}
-	public boolean vihaRtfCheck(String header){
-		return (header.equals(VIHARTF));
-	}
-
-    public String getNteForPID(){
-    	
-    	return "";
-    }
-    
-	/**
-	 * If the first OBX segment is presenting a textual report and the lab type is 
-	 * not in the unstructured (PATH or ITS) lab types.  
-	 * 
-	 */
-	public boolean isReportData() {		
-		return ( OBX_DATA_TYPES.TX.name().equals( getOBXValueType(0, 0) ) 
-				|| OBX_DATA_TYPES.FT.name().equals( getOBXValueType(0, 0) )  );		
-	}
-    
-    //for OMD validation
-    public boolean isTestResultBlocked(int i, int j) {
-    	return false;
-    }
     
 }

@@ -71,7 +71,8 @@
 <%@ page import="oscar.oscarLab.ca.all.parsers.*" %>
 <%@ page import="oscar.oscarLab.ca.all.util.*" %>
 <%@ page import="oscar.oscarLab.ca.all.web.LabDisplayHelper" %>
-<%@ page import="oscar.oscarMDS.data.ReportStatus,oscar.log.*" %>
+<%@ page import="oscar.oscarMDS.data.ReportStatus" %>
+<%@ page import="oscar.log.*" %>
 <%@ page import="oscar.util.ConversionUtils"%>
 <%@ page import="oscar.util.UtilDateUtilities" %>
 <jsp:useBean id="oscarVariables" class="java.util.Properties" scope="session" />
@@ -1398,6 +1399,7 @@ input[id^='acklabel_']{
                                                 </td>
                                             </tr>
                                         <% } %>
+                                        <% if (!"ExcellerisON".equals(handler.getMsgType())) { %>
                                          <tr>
                                              <td >
                                                 <div class="FieldDatas">
@@ -1411,6 +1413,7 @@ input[id^='acklabel_']{
                                                 </div>
                                             </td>
                                         </tr>
+                                        <% } %>
                                         <tr>
                                         	 <td >
                                         		<div class="FieldDatas">
@@ -1842,7 +1845,7 @@ for(int mcount=0; mcount<multiID.length; mcount++){
                         	   String lastObxSetId = "0";
                                boolean obrFlag = false;
                                int obxCount = handler.getOBXCount(j);
-                               
+
                                if (handler.getMsgType().equals("ExcellerisON") && handler.getObservationHeader(j, 0).equals(headers.get(i))) {
                                String orderRequestStatus = ((ExcellerisOntarioHandler) handler).getOrderStatus(j);
                                %>
@@ -1851,8 +1854,8 @@ for(int mcount=0; mcount<multiID.length; mcount++){
                                         <td colspan="1"><%=orderRequestStatus%></td>
                                     </tr>
                                <%
-                               }   
-                               
+                               }
+
                                for (k=0; k < obxCount; k++){
 
                                	String obxName = handler.getOBXName(j, k);

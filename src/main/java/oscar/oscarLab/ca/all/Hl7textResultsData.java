@@ -157,11 +157,14 @@ public class Hl7textResultsData {
 				
 				Measurement m = new Measurement();
 				m.setType(measType);
+				// logger.debug("type : " + measType + " demo : " + demographic_no + " result : " + result + " instructions : " + measInst);
 				m.setDemographicId(Integer.parseInt(demographic_no));
 				m.setProviderNo("0");
+				// Excelleris sometimes provides text instead of a result that causes overflow
+				if (result.length() > 9) { result = "*"; }
 				m.setDataField(result);
 				m.setMeasuringInstruction(measInst);
-				logger.debug("DATETIME FOR MEASUREMENT " + datetime);
+				logger.debug("DATETIME FOR MEASUREMENT : " + datetime);
 				if(datetime != null && datetime.length()>0) {
 					m.setDateObserved(UtilDateUtilities.StringToDate(datetime, "yyyy-MM-dd hh:mm:ss"));
 				} 
@@ -472,8 +475,8 @@ public class Hl7textResultsData {
 		lbData.requestingClient = info.getRequestingProvider();
 		lbData.reportStatus = info.getReportStatus();
 
-		// the "C" is for corrected excelleris labs
-		if (lbData.reportStatus != null && (lbData.reportStatus.equals("F") || lbData.reportStatus.equals("C"))) {
+		// the "C" is for corrected excelleris labs ExcellerisON uses F but is stored internally as "Completed"
+		if (lbData.reportStatus != null && (lbData.reportStatus.equals("F") || lbData.reportStatus.equals("C")  || lbData.reportStatus.equals("Completed"))) {
 			lbData.finalRes = true;
 		} else {
 			lbData.finalRes = false;
