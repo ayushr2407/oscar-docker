@@ -731,8 +731,12 @@ public final class MessageUploader {
 			try {
 				if (hin.equalsIgnoreCase("UNKNOWN")) { hin = ""; }
 				if (hin != null) {
+					// Ontario may be bare or have the version code concacted 1234567890XX
+					// Quebec type hin look like HUTPyymmdd12
+					// BC hin MSP is a 9 digit code
 					hinMod = new String(hin);
-					if (hinMod.length() == 12) {
+					if (hinMod.length() == 12 && Character.isDigit(hinMod.charAt(1))) {
+						// strip the version code for Ontario
 						hinMod = hinMod.substring(0, 10);
 					}
 				}
@@ -747,8 +751,8 @@ public final class MessageUploader {
 				}
 				
 				int parameterSet = 0;
-				// if no hin but there is a dob try for a complete match against the full name
-				if( ( hinMod == null || hinMod.equals("") ) && (dob != null && !dob.equals("")) ) {
+				// if no hin but there is a dob try for a complete match against the full name DOB and gender
+				if( ( hinMod == null || hinMod.equals("") ) && (dob != null && !dob.equals("") && !dob.equalsIgnoreCase("UNKNOWN"))  ) {
 					logger.debug("Finding demo for given name : "+firstName+"% surname : "+lastName+"% with dob y/m/d : "+dobYear+"/"+dobMonth+"/"+dobDay+" sex of : "+sex);
 					sql = "select demographic_no, provider_no from demographic where year_of_birth like ? and month_of_birth like ? and date_of_birth like ? and ( sex like ? OR sex NOT IN ('F', 'M') ) and last_name like ? and first_name like ?";
 					parameterSet = 6;
@@ -758,7 +762,7 @@ public final class MessageUploader {
 				if (firstName.length() > 0) { firstName = firstName.substring(0, 1);}
 				if (lastName.length() > 0) { lastName = lastName.substring(0, 1);}
 				
-				// HIN is ALWAYS required for lab matching. Please do not revert this code. Previous iterations have caused fatal patient miss-matches.	
+				// HIN is ALWAYS required for lab matching sql below. Please do not revert this code. Previous iterations have caused fatal patient miss-matches.	
 				// relax need to match gender for non binary labeled demographics " ( sex like '"+sex+"%' OR sex NOT IN ('F','M') ";
 				if( hinMod != null && !hinMod.equals("") ) {
 					logger.debug("Finding demo for given name : "+firstName+"% surname : "+lastName+"% with hinMod : "+hinMod+" dob y/m/d : "+dobYear+"/"+dobMonth+"/"+dobDay+" sex* of : "+sex);
