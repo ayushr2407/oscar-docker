@@ -196,7 +196,7 @@ public class CanadianVaccineCatalogueManager2 {
 		IGenericClient client = clientFactory.newGenericClient(CanadianVaccineCatalogueManager2.getCVCURL());
 		logger.debug("serverBase=" + CanadianVaccineCatalogueManager2.getCVCURL());
 		String xAppDesc = OscarProperties.getInstance().getProperty("oneid.oauth2.clientId","OSCAREMR");
-		Bundle bundle =client.search().byUrl(CanadianVaccineCatalogueManager2.getCVCURL() + "/Bundle/CVC").withAdditionalHeader("x-app-desc",xAppDesc).returnBundle(Bundle.class).execute();
+		Bundle bundle =client.search().byUrl(CanadianVaccineCatalogueManager2.getCVCURL() + "/Bundle/NVC").withAdditionalHeader("x-app-desc",xAppDesc).returnBundle(Bundle.class).execute();
 		return bundle;
 	}
 	
