@@ -28,6 +28,7 @@ import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.RandomAccessFileOrArray;
 import com.itextpdf.text.pdf.codec.TiffImage;
 
+
 public class ImagePDFCreator extends PdfPageEventHelper {
 
 	private static Logger logger = MiscUtils.getLogger();
@@ -65,7 +66,7 @@ public class ImagePDFCreator extends PdfPageEventHelper {
 		// Create the document we are going to write to
 		document = new Document();
 		PdfWriter writer = PdfWriter.getInstance(document, os);
-		// PdfWriter writer = PdfWriterFactory.newInstance(document, os, FontSettings.HELVETICA_6PT);
+		//PdfWriter writer = PdfWriterFactory.newInstance(document, os, FontSettings.HELVETICA_6PT);
 
 		
 		document.setPageSize(PageSize.LETTER);
