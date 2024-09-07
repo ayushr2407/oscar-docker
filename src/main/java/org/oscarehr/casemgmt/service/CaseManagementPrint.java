@@ -64,8 +64,6 @@ import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
-import com.lowagie.text.DocumentException;
-
 import oscar.OscarProperties;
 
 import oscar.oscarLab.ca.all.pageUtil.LabPDFCreator;
