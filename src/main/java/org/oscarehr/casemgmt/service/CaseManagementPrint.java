@@ -101,7 +101,7 @@ public class CaseManagementPrint {
         String[] noteIds, boolean printCPP, boolean printRx, boolean printLabs,
         boolean printPreventions, boolean printMeasurements, boolean printDocuments,
         boolean printHrms, Calendar startDate, Calendar endDate, HttpServletRequest request,
-        OutputStream os) throws IOException, DocumentException { 
+        OutputStream os) throws IOException, com.itextpdf.text.DocumentException { 
 			
 		String providerNo=loggedInInfo.getLoggedInProviderNo();
 
