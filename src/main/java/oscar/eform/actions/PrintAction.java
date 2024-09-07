@@ -150,7 +150,11 @@ public class PrintAction extends Action {
 						request.setAttribute("imagePath", path + doc.getFileName());
 						request.setAttribute("imageTitle", doc.getDescription());
 						ImagePDFCreator ipdfc = new ImagePDFCreator(request, bos);
-						ipdfc.printPdf();
+						try {
+							ipdfc.printPdf();
+						} catch(com.itextpdf.text.DocumentException de) {
+							logger.error("PrintAction : " +de);
+						}
 						
 						buffer = bos.getBytes();
 						bis = new ByteInputStream(buffer, bos.getCount());

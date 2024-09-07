@@ -45,7 +45,7 @@ import oscar.oscarLab.ca.on.LabResultData;
 import oscar.OscarProperties;
 import oscar.util.ConcatPDF;
 
-import com.lowagie.text.DocumentException;
+import com.itextpdf.text.DocumentException;
 
 public final class FaxAction {
 
@@ -244,7 +244,7 @@ public final class FaxAction {
 			// Removing the eform pdf.
 			tempFile.delete();			
 						
-		} catch (com.lowagie.text.DocumentException | IOException e) {
+		} catch (DocumentException | IOException e) {
 			MiscUtils.getLogger().error("Error converting and sending eform. id="+formId, e);
 		} 
 	}

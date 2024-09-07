@@ -49,7 +49,7 @@ import org.oscarehr.util.SpringUtils;
 import org.oscarehr.util.WKHtmlToPdfUtils;
 
 import com.itextpdf.text.pdf.PdfReader;
-import com.lowagie.text.DocumentException;
+import com.itextpdf.text.DocumentException;
 import com.sun.xml.messaging.saaj.util.ByteInputStream;
 import com.sun.xml.messaging.saaj.util.ByteOutputStream;
 
@@ -160,7 +160,11 @@ public class EctConsultationFormFaxAction extends Action {
 						request.setAttribute("imagePath", path + doc.getFileName());
 						request.setAttribute("imageTitle", doc.getDescription());
 						ImagePDFCreator ipdfc = new ImagePDFCreator(request, bos);
-						ipdfc.printPdf();
+						try {
+							ipdfc.printPdf();
+						} catch(DocumentException de) {
+							logger.error("EctConsultation : " +de);
+						}
 						
 						buffer = bos.getBytes();
 						bis = new ByteInputStream(buffer, bos.getCount());
@@ -188,7 +192,11 @@ public class EctConsultationFormFaxAction extends Action {
 				if (messageHandler instanceof OLISHL7Handler){
 					//If the lab is HL7, use the OLISLabPDFCreator to print the lab
 					OLISLabPDFCreator olisLabPdfCreator = new OLISLabPDFCreator(request, bos);
-					olisLabPdfCreator.printPdf();
+					try {
+						olisLabPdfCreator.printPdf();
+					} catch(DocumentException de) {
+						logger.error("OLIS : " +de);
+					}
 				}
 				else {
 					LabPDFCreator lpdfc = new LabPDFCreator(request, bos);

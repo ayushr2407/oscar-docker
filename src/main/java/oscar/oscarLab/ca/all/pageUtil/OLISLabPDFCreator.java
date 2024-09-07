@@ -23,7 +23,6 @@
  */
 package oscar.oscarLab.ca.all.pageUtil;
 
-import java.awt.Color;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -42,21 +41,22 @@ import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
-import com.lowagie.text.Chunk;
-import com.lowagie.text.Document;
-import com.lowagie.text.DocumentException;
-import com.lowagie.text.Element;
-import com.lowagie.text.ExceptionConverter;
-import com.lowagie.text.Font;
-import com.lowagie.text.PageSize;
-import com.lowagie.text.Phrase;
-import com.lowagie.text.Rectangle;
-import com.lowagie.text.pdf.BaseFont;
-import com.lowagie.text.pdf.PdfContentByte;
-import com.lowagie.text.pdf.PdfPCell;
-import com.lowagie.text.pdf.PdfPTable;
-import com.lowagie.text.pdf.PdfPageEventHelper;
-import com.lowagie.text.pdf.PdfWriter;
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Chunk;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.ExceptionConverter;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.pdf.BaseFont;
+import com.itextpdf.text.pdf.PdfContentByte;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfPageEventHelper;
+import com.itextpdf.text.pdf.PdfWriter;
 
 import oscar.OscarProperties;
 import oscar.oscarLab.ca.all.Hl7textResultsData;
@@ -230,8 +230,8 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
         cf = BaseFont.createFont(BaseFont.COURIER, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
         font = new Font(bf, 9, Font.NORMAL);
         boldFont = new Font(bf, 9, Font.BOLD);
-        redFont = new Font(bf, 9, Font.NORMAL, Color.RED);
-        blueFont = new Font(bf, 9, Font.NORMAL, Color.BLUE);
+        redFont = new Font(bf, 9, Font.NORMAL, BaseColor.RED);
+        blueFont = new Font(bf, 9, Font.NORMAL, BaseColor.BLUE);
         categoryHeadFont = new Font(bf, 12, Font.BOLD);
         commentFont = new Font(cf, 9, Font.NORMAL);
         subscriptFont = new Font(bf, 6, Font.NORMAL);
@@ -280,13 +280,13 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 	 * header, the test result headers and the test results for that category.
 	 */
 	private void addOLISLabCategory(String header, Integer obr) throws DocumentException {	
-		Color categoryBackground = new Color(255, 204, 0);
-		Color separatorColour = new Color(0, 51, 153);
+		BaseColor categoryBackground = new BaseColor(255, 204, 0);
+		BaseColor separatorColour = new BaseColor(0, 51, 153);
 		
 		//Creates a separator cell for separation between results
 		PdfPCell separator = new PdfPCell();
 		separator.setColspan(2);
-		separator.setBorder(0);
+		separator.setBorder(0);		
 		separator.setBackgroundColor(separatorColour);
 		separator.setFixedHeight(1f);
 		
@@ -345,7 +345,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 		//Checks if the OBR is blocked
 		Boolean blocked = handler.isOBRBlocked(obr);
 		if (blocked){
-			categoryPhrase.setFont(new Font(bf, 7, Font.NORMAL, Color.RED));
+			categoryPhrase.setFont(new Font(bf, 7, Font.NORMAL, BaseColor.RED));
 			categoryPhrase.add("\n\n(Do Not Disclose Without Explicit Patient Consent");
 		}
 		
@@ -417,7 +417,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 		cell.setColspan(1);
 		cell.setBorder(15);
 		cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-		cell.setBackgroundColor(new Color(210, 212, 255));
+		cell.setBackgroundColor(new BaseColor(210, 212, 255));
 		cell.setPhrase(new Phrase("Test Name(s)", boldFont));
 		table.addCell(cell);
 		cell.setPhrase(new Phrase("Result", boldFont));
@@ -432,8 +432,8 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 		table.addCell(cell);
 
 		cell.setBorder(12);
-		cell.setBorderColor(Color.BLACK); // cell.setBorderColor(Color.WHITE);
-		cell.setBackgroundColor(new Color(255, 255, 255));
+		cell.setBorderColor(BaseColor.BLACK); // cell.setBorderColor(Color.WHITE);
+		cell.setBackgroundColor(new BaseColor(255, 255, 255));
 		
 		boolean obrFlag = false;
 		int obxCount = handler.getOBXCount(obr);
@@ -1110,13 +1110,13 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
         PdfPTable table = new PdfPTable(tableWidths);
         if (multiID.length > 1){
             cell = new PdfPCell(new Phrase("Version: "+versionNum+" of "+multiID.length, boldFont));
-            cell.setBackgroundColor(new Color(210, 212, 255));
+			cell.setBackgroundColor(new BaseColor(210, 212, 255));
             cell.setPadding(3);
             cell.setColspan(2);
             table.addCell(cell);
         }
         cell = new PdfPCell(new Phrase("Detail Results: Patient Info", boldFont));
-        cell.setBackgroundColor(new Color(210, 212, 255));
+        cell.setBackgroundColor(new BaseColor(210, 212, 255));
         cell.setPadding(5);
         table.addCell(cell);
         cell.setPhrase(new Phrase("Results Info", boldFont));
@@ -1354,11 +1354,8 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
     	
     	splitNames = docNames.split(", ");
     	
-    	for(String docName : splitNames){
-    		
-    		for(Object chunk : getDoctorNamePhrase(docName).getChunks()){
-    			ccDocNames.add(chunk);
-    		}
+    	for(String docName : splitNames){    		
+    		ccDocNames.addAll(getDoctorNamePhrase(docName).getChunks());
     		ccDocNames.add(new Chunk(", ", font));
     	}
     	ccDocNames.remove(ccDocNames.size() - 1);
