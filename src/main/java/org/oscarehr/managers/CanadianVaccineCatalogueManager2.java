@@ -197,10 +197,12 @@ public class CanadianVaccineCatalogueManager2 {
 		logger.debug("serverBase=" + CanadianVaccineCatalogueManager2.getCVCURL());
 		String Accept = OscarProperties.getInstance().getProperty("CVC_HEADER","application/json+fhir");
 		String xAppDesc = OscarProperties.getInstance().getProperty("oneid.oauth2.clientId","OSCAREMR");
+		// acceptable Accept headers are "application/json+fhir" and "application/json"
+		// acceptable x-app-desc headers are "PHAC NVC Client" or "Local EMR Client".
 		Bundle bundle =client.search()
 			.byUrl(CanadianVaccineCatalogueManager2.getCVCURL() + "/Bundle/NVC")
 			.withAdditionalHeader("Accept","application/json+fhir")
-			.withAdditionalHeader("x-app-desc","PHAC NVC Client")
+			.withAdditionalHeader("x-app-desc","Local EMR Client")
 			.returnBundle(Bundle.class).execute();
 		return bundle;
 	}
