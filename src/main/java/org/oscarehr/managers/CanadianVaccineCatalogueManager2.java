@@ -204,10 +204,10 @@ public class CanadianVaccineCatalogueManager2 {
 		// Register an additional headers interceptor and add one header to it
 		AdditionalRequestHeadersInterceptor interceptor = new AdditionalRequestHeadersInterceptor();
 		interceptor.addHeaderValue("Accept","application/json+fhir");
+		interceptor.addHeaderValue("x-app-desc","PHAC NVC Client");
 		client.registerInterceptor(interceptor);
 		Bundle bundle =client.search()
 			.byUrl(CanadianVaccineCatalogueManager2.getCVCURL() + "/Bundle/NVC")
-			.withAdditionalHeader("x-app-desc","Local EMR Client")
 			.returnBundle(Bundle.class)
 			.execute();
 		return bundle;
