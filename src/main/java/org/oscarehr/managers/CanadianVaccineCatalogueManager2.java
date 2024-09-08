@@ -460,7 +460,7 @@ public class CanadianVaccineCatalogueManager2 {
 					cMed.setDinDisplayName(c.getDisplay());
 					
 				}
-				if ("https://nvc-cnv.canada.ca/v1/StructureDefinition/nvc-dins".equals(c.getSystem())) { // not a thing
+				if ("http://snomed.info/sct".equals(c.getSystem())) { 
 					cMed.setSnomedCode(c.getCode());
 					cMed.setSnomedDisplay(c.getDisplay());
 				}
@@ -471,11 +471,7 @@ public class CanadianVaccineCatalogueManager2 {
 			
 			
 			
-			for (Extension ext : med.getExtension()) {
-				if ("https://nvc-cnv.canada.ca/v1/StructureDefinition/nvc-dins".equals(ext.getUrl())) {
-					cMed.setSnomedCode(ext.getCode());
-					cMed.setSnomedDisplay(ext.getDisplay());
-				}					
+			for (Extension ext : med.getExtension()) {		
 				
 				if ((getCVCURL() + "/StructureDefinition/nvc-market-authorization-holder").equals(ext.getUrl())) {
 					cMed.setManufacturerDisplay(ext.getValue().primitiveValue());
