@@ -199,8 +199,8 @@ public class CanadianVaccineCatalogueManager2 {
 		String xAppDesc = OscarProperties.getInstance().getProperty("oneid.oauth2.clientId","OSCAREMR");
 		Bundle bundle =client.search()
 			.byUrl(CanadianVaccineCatalogueManager2.getCVCURL() + "/Bundle/NVC")
-			.withAdditionalHeader("Accept",Accept)
-			.withAdditionalHeader("x-app-desc",xAppDesc)
+			.withAdditionalHeader("Accept","application/json+fhir")
+			.withAdditionalHeader("x-app-desc","PHAC NVC Client")
 			.returnBundle(Bundle.class).execute();
 		return bundle;
 	}
