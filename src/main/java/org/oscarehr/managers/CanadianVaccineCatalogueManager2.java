@@ -195,8 +195,13 @@ public class CanadianVaccineCatalogueManager2 {
 		clientFactory.setServerValidationMode(ServerValidationModeEnum.NEVER);
 		IGenericClient client = clientFactory.newGenericClient(CanadianVaccineCatalogueManager2.getCVCURL());
 		logger.debug("serverBase=" + CanadianVaccineCatalogueManager2.getCVCURL());
+		String Accept = OscarProperties.getInstance().getProperty("CVC_HEADER","application/json+fhir");
 		String xAppDesc = OscarProperties.getInstance().getProperty("oneid.oauth2.clientId","OSCAREMR");
-		Bundle bundle =client.search().byUrl(CanadianVaccineCatalogueManager2.getCVCURL() + "/Bundle/NVC").withAdditionalHeader("x-app-desc",xAppDesc).returnBundle(Bundle.class).execute();
+		Bundle bundle =client.search()
+			.byUrl(CanadianVaccineCatalogueManager2.getCVCURL() + "/Bundle/NVC")
+			.withAdditionalHeader("Accept",Accept)
+			.withAdditionalHeader("x-app-desc",xAppDesc)
+			.returnBundle(Bundle.class).execute();
 		return bundle;
 	}
 	
@@ -228,13 +233,13 @@ public class CanadianVaccineCatalogueManager2 {
 				}
 				
 				for (Extension ext : cc.getExtension()) {
-
-					if ("https://api.cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-shelf-status".equals(ext.getUrl())) {
+					// https://nvc-cnv.canada.ca/v1
+					if ((getCVCURL() + "/StructureDefinition/nvc-product-status").equals(ext.getUrl())) {
 						CodeableConcept shelfStatusConcept = (CodeableConcept)ext.getValue();
 						//active or inactive
 						//String status = ext.getValueAsPrimitive().getValueAsString();
 						for(Coding parentConceptCode :shelfStatusConcept.getCoding()) {                        
-							if("https://api.cvc.canimmunize.ca/v3/Valueset/ShelfStatus".equals(parentConceptCode.getSystem())) {
+							if ((getCVCURL() + "/ValueSet/ShelfStatus").equals(parentConceptCode.getSystem())) {
 								imm.setShelfStatus(parentConceptCode.getDisplay());
 								logger.debug("status: "+parentConceptCode.getDisplay());
 							}
@@ -243,25 +248,25 @@ public class CanadianVaccineCatalogueManager2 {
 				
 					
 					
-					if ("https://api.cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-concept-last-updated".equals(ext.getUrl())) {
+					if ((getCVCURL() + "/StructureDefinition/nvc-concept-last-updated".equals(ext.getUrl())) {
 						Date lastUpdated = (Date)ext.getValueAsPrimitive().getValue();
 					}
 					
-					if ("https://api.cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-ontario-ispa-vaccine".equals(ext.getUrl())) {
-						Boolean ispa = (Boolean)ext.getValueAsPrimitive().getValue();
-						imm.setIspa(ispa);	
-					}
+					//if ((getCVCURL() + "/StructureDefinition/nvc-ontario-ispa-vaccine".equals(ext.getUrl())) {
+					//	Boolean ispa = (Boolean)ext.getValueAsPrimitive().getValue();
+					//	imm.setIspa(ispa);	
+					//}
 					
-					if ("https://api.cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-passive-immunizing-agent".equals(ext.getUrl())) {
+					if ((getCVCURL() + "/StructureDefinition/nvc-passive-immunizing-agent".equals(ext.getUrl())) {
 						Boolean passiveImmAgent = (Boolean)ext.getValueAsPrimitive().getValue();
 						
 					}
 					
-					if ("https://api.cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-contains-antigens".equals(ext.getUrl())) {
+					if ((getCVCURL() + "/StructureDefinition/nvc-contains-antigen".equals(ext.getUrl())) {
 						//more structure
 					}
 					
-					if ("https://api.cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-protects-against-diseases".equals(ext.getUrl())) {
+					if ((getCVCURL() + "/StructureDefinition/nvc-protects-against-diseases".equals(ext.getUrl())) {
 						//more structure
 					}
 					
@@ -332,12 +337,12 @@ public class CanadianVaccineCatalogueManager2 {
 					}
 					*/
 					
-					if ("https://api.cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-shelf-status".equals(ext.getUrl())) {
+					if ((getCVCURL() + "/StructureDefinition/nvc-product-status").equals(ext.getUrl())) {
 						CodeableConcept shelfStatusConcept = (CodeableConcept)ext.getValue();
 						//active or inactive
 						//String status = ext.getValueAsPrimitive().getValueAsString();
 						for(Coding parentConceptCode :shelfStatusConcept.getCoding()) {                        
-							if("https://api.cvc.canimmunize.ca/v3/CodeSystem/ShelfStatus".equals(parentConceptCode.getSystem())) {
+							if ((getCVCURL() + "/ValueSet/ShelfStatus").equals(parentConceptCode.getSystem())) {
 								imm.setShelfStatus(parentConceptCode.getDisplay());
 								logger.debug("status: "+parentConceptCode.getDisplay());
 							}
@@ -345,73 +350,68 @@ public class CanadianVaccineCatalogueManager2 {
 					}
 					
 					
-					if ("https://api.cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-concept-last-updated".equals(ext.getUrl())) {
+					if ((getCVCURL() + "/StructureDefinition/nvc-concept-last-updated".equals(ext.getUrl())) {
 						
 					}
 					
-					if ("https://api.cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-ontario-ispa-vaccine".equals(ext.getUrl())) {
-						Boolean ispa =  (Boolean)ext.getValueAsPrimitive().getValue();
-						imm.setIspa(ispa);
-					}
-										
+					//if ((getCVCURL() + "/StructureDefinition/nvc-ontario-ispa-vaccine".equals(ext.getUrl())) {
+					//	Boolean ispa = (Boolean)ext.getValueAsPrimitive().getValue();
+					//	imm.setIspa(ispa);	
+					//}										
 					
-					if ("https://api.cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-parent-concept".equals(ext.getUrl())) {
+					if ((getCVCURL() + "/StructureDefinition/nvc-parent-concept".equals(ext.getUrl())) {
 						CodeableConcept parentConcept = (CodeableConcept)ext.getValue();
 						for(Coding parentConceptCode :parentConcept.getCoding()) {
-							if("https://api.cvc.canimmunize.ca/v3/ValueSet/Generic".equals(parentConceptCode.getSystem())) {
+							if((getCVCURL() + "/ValueSet/Generic".equals(parentConceptCode.getSystem())) {
 								imm.setParentConceptId(parentConceptCode.getCode());
 							}
 						}
 						//String parent = ext.getValue().toString();
 						//imm.setParentConceptId(parent);
 					}
-					if ("https://api.cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-din".equals(ext.getUrl())) {
+					if ((getCVCURL() + "/StructureDefinition/nvc-din".equals(ext.getUrl())) {
 						CodeableConcept dinConcept = (CodeableConcept)ext.getValue();
 						if(dinConcept.hasCoding()) {
 							din = dinConcept.getCoding().get(0).getDisplay();
 						}
 					}
-					if("https://api.cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-market-authorization-holder".equals(ext.getUrl())) {
+					if((getCVCURL() + "/StructureDefinition/nvc-market-authorization-holder".equals(ext.getUrl())) {
 						manufactureDisplay = ext.getValue().primitiveValue();
 					}
 					
-					if ("https://api.cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-typical-dose-size".equals(ext.getUrl())) {
+					if ((getCVCURL() + "/StructureDefinition/nvc-typical-dose-size".equals(ext.getUrl())) {
 						String typicalDose = ext.getValueAsPrimitive().getValueAsString();
 						imm.setTypicalDose(typicalDose);
 					}
 					
-					if ("https://api.cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-typical-dose-size-uom".equals(ext.getUrl())) {
+					if ((getCVCURL() + "/StructureDefinition/nvc-typical-dose-size-uom".equals(ext.getUrl())) {
 						String typicalDoseUofM = ext.getValueAsPrimitive().getValueAsString();
 						imm.setTypicalDoseUofM(typicalDoseUofM);
 					}
-					if ("https://api.cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-strength".equals(ext.getUrl())) {
+					if ((getCVCURL() + "/StructureDefinition/nvc-strength".equals(ext.getUrl())) {
 						String strength = ext.getValueAsPrimitive().getValueAsString();
 						imm.setStrength(strength);
 					}
 					
-					if ("https://api.cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-passive-immunizing-agent".equals(ext.getUrl())) {
+					if ((getCVCURL() + "/StructureDefinition/nvc-passive-immunizing-agent".equals(ext.getUrl())) {
 						Boolean passiveImmAgent = (Boolean)ext.getValueAsPrimitive().getValue();
 						
 					}
 					
-					if ("https://api.cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-contains-antigens".equals(ext.getUrl())) {
+					if ((getCVCURL() + "/StructureDefinition/nvc-contains-antigen".equals(ext.getUrl())) {
 						//more structure
 					}
 					
-					if ("https://api.cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-protects-against-diseases".equals(ext.getUrl())) {
+					if ((getCVCURL() + "/StructureDefinition/nvc-protects-against-disease".equals(ext.getUrl())) {
 						//more structure
 					}
-					if ("https://api.cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-route-of-admin-maps".equals(ext.getUrl())) {
-						for(Extension routesExt : ext.getExtension()) {
-							if("https://api.cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-route-of-admin-map".equals(routesExt.getUrl())) {
-								CodeableConcept routeConcept = (CodeableConcept)routesExt.getValue();
-								if(routeConcept.hasCoding()) {
-									routeDisplay = routeConcept.getCoding().get(0).getDisplay(); //"Intramuscular: IM"
-									routeCode = routeConcept.getCoding().get(0).getCode(); //"78421000"
-									imm.setRoute(routeCode);
-								}
+					if ((getCVCURL() + "/StructureDefinition/nvc-route-of-admin".equals(ext.getUrl())) {
+						CodeableConcept routeConcept = (CodeableConcept)ext.getValue();
+						for(Coding routeConceptCode :routeConcept.getCoding()) {
+							if((getCVCURL() + "/ValueSet/RouteOfAdmin".equals(routeConceptCode.getSystem())) {
+								imm.setRoute(routeConceptCode.getCode());
 							}
-						}
+						}					
 					}					
 				}
 				
@@ -460,25 +460,31 @@ public class CanadianVaccineCatalogueManager2 {
 					cMed.setDinDisplayName(c.getDisplay());
 					
 				}
-				if ("https://fhir.infoway-inforoute.ca/codesystem/snomedctcaextension".equals(c.getSystem())) {
+				if ("https://nvc-cnv.canada.ca/v1/StructureDefinition/nvc-dins".equals(c.getSystem())) { // not a thing
 					cMed.setSnomedCode(c.getCode());
 					cMed.setSnomedDisplay(c.getDisplay());
 				}
-				if ("http://www.gs1.org/gtin".equals(c.getSystem())) {
+				if ("http://www.gs1.org/gtin".equals(c.getSystem())) { // not a thing
 					cMed.getGtinList().add(new CVCMedicationGTIN(cMed, c.getCode()));
 				}
 			}
 			
+			
+			
 			for (Extension ext : med.getExtension()) {
+				if ("https://nvc-cnv.canada.ca/v1/StructureDefinition/nvc-dins".equals(ext.getUrl())) {
+					cMed.setSnomedCode(ext.getCode());
+					cMed.setSnomedDisplay(ext.getDisplay());
+				}					
 				
-				if("https://api.cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-market-authorization-holder".equals(ext.getUrl())) {
+				if ((getCVCURL() + "/StructureDefinition/nvc-market-authorization-holder".equals(ext.getUrl())) {
 					cMed.setManufacturerDisplay(ext.getValue().primitiveValue());
 				}
 
-				if ("https://api.cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-shelf-status".equals(ext.getUrl())) {
+				if ((getCVCURL() + "/StructureDefinition/nvc-product-status".equals(ext.getUrl())) {
 					CodeableConcept shelfStatusConcept = (CodeableConcept)ext.getValue();
 					for(Coding parentConceptCode :shelfStatusConcept.getCoding()) {
-						if("https://api.cvc.canimmunize.ca/v3/ValueSet/ShelfStatus".equals(parentConceptCode.getSystem())) {
+						if ((getCVCURL() + "/ValueSet/ShelfStatus".equals(parentConceptCode.getSystem())) {
 							cMed.setStatus(parentConceptCode.getDisplay());
 						}
 					}
@@ -486,26 +492,25 @@ public class CanadianVaccineCatalogueManager2 {
 					
 				}
 				
-				if ("https://api.cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-concept-last-updated".equals(ext.getUrl())) {
+				if ((getCVCURL() + "/StructureDefinition/nvc-concept-last-updated".equals(ext.getUrl())) {
 					
 				}
 				
-				if ("https://api.cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-container".equals(ext.getUrl())) {
+				if ((getCVCURL() + "/StructureDefinition/nvc-container".equals(ext.getUrl())) {  //not a thing
 					
 				}
 				
-				
-
-				if ("https://api.cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-lots".equals(ext.getUrl())) {
+						
+				if ((getCVCURL() + "/StructureDefinition/nvc-lots".equals(ext.getUrl())) {
 					for(Extension lotsExt : ext.getExtension()) {
-						if("ca-cvc-lot".equals(lotsExt.getUrl())) {
+						if ((getCVCURL() + "/StructureDefinition/nvc-lot".equals(lotsExt.getUrl())) {
 							String lotNumber = null;
 							String expiry = null;
 							for(Extension lotExt : lotsExt.getExtension()) {
-								if("lotNumber".equals(lotExt.getUrl())) {
+								if ((getCVCURL() + "/StructureDefinition/nvc-lot-number".equals(lotExt.getUrl())) {
 									lotNumber= lotExt.getValueAsPrimitive().getValueAsString();
 								}
-								if("expiryDate".equals(lotExt.getUrl())) {
+								if ((getCVCURL() + "/StructureDefinition/nvc-expiry-date".equals(lotExt.getUrl())) {
 									expiry = lotExt.getValueAsPrimitive().getValueAsString();
 								}
 							}
@@ -593,10 +598,10 @@ public class CanadianVaccineCatalogueManager2 {
 			List<ConceptReferenceComponent> cons = c.getConcept();
 			for (ConceptReferenceComponent cc : cons) {
 				for(Extension ext : cc.getExtension()) {
-					if("https://api.cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-concept-status-extension".equals(ext.getUrl())) {
+					if ((getCVCURL() + "/StructureDefinition/nvc-concept-status-extension".equals(ext.getUrl())) {
 						String status = (String)ext.getValueAsPrimitive().getValue();
 					}
-					if("https://api.cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-concept-last-updated".equals(ext.getUrl())) {
+					if ((getCVCURL() + "/StructureDefinition/nvc-concept-last-updated".equals(ext.getUrl())) {
 						Date dateLastUpdated = (Date)ext.getValueAsPrimitive().getValue();
 					}
 				}
@@ -656,10 +661,10 @@ public class CanadianVaccineCatalogueManager2 {
 			List<ConceptReferenceComponent> cons = c.getConcept();
 			for (ConceptReferenceComponent cc : cons) {
 				for(Extension ext : cc.getExtension()) {
-					if("https://api.cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-concept-status-extension".equals(ext.getUrl())) {
+					if ((getCVCURL() + "/StructureDefinition/nvc-concept-status-extension".equals(ext.getUrl())) {
 						String status = (String)ext.getValueAsPrimitive().getValue();
 					}
-					if("https://api.cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-concept-last-updated".equals(ext.getUrl())) {
+					if ((getCVCURL() + "/StructureDefinition/nvc-concept-last-updated".equals(ext.getUrl())) {
 						Date dateLastUpdated = (Date)ext.getValueAsPrimitive().getValue();
 					}
 				}
