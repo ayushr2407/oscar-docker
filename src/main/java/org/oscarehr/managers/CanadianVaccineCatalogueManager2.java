@@ -94,7 +94,7 @@ public class CanadianVaccineCatalogueManager2 {
 	CVCImmunizationDao immunizationDao;
 	
 	static {
-		ctxR4 = FhirContext.forR4();
+		ctxR4 = FhirContext.forR4(); //Creates and returns a new FhirContext with version R4
 	}
 	
 	Map<String,String> dinManufactureMap = new HashMap<String,String>();
@@ -202,15 +202,22 @@ public class CanadianVaccineCatalogueManager2 {
 		// acceptable Accept headers are "application/json+fhir" and "application/json"
 		// acceptable x-app-desc headers are "PHAC NVC Client" or "Local EMR Client".
 		// Register an additional headers interceptor and add one header to it
-		AdditionalRequestHeadersInterceptor interceptor = new AdditionalRequestHeadersInterceptor();
-		interceptor.addHeaderValue("Accept","application/json+fhir");
-		interceptor.addHeaderValue("x-app-desc","PHAC NVC Client");
-		client.registerInterceptor(interceptor);
+//		AdditionalRequestHeadersInterceptor interceptor = new AdditionalRequestHeadersInterceptor();
+//		interceptor.addHeaderValue("Accept","application/json+fhir");
+//		interceptor.addHeaderValue("x-app-desc","PHAC NVC Client");
+//		client.registerInterceptor(interceptor);
+//		Bundle bundle =client.search()
+//			.byUrl(CanadianVaccineCatalogueManager2.getCVCURL() + "/Bundle/NVC")
+//			.returnBundle(Bundle.class)
+//			.execute();
 		Bundle bundle =client.search()
-			.byUrl(CanadianVaccineCatalogueManager2.getCVCURL() + "/Bundle/NVC")
+			.byUrl("https://nvc-cvn.canada.ca/v1/Bundle/NVC")
+			.withAdditionalHeader("Accept","application/json+fhir")
+			.withAdditionalHeader("x-app-desc","PHAC NVC Client")
 			.returnBundle(Bundle.class)
 			.execute();
 		return bundle;
+
 	}
 	
 	public void updateGenericImmunizations(LoggedInInfo loggedInInfo, ValueSet vs) {
