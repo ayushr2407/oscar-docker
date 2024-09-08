@@ -193,17 +193,22 @@ public class CanadianVaccineCatalogueManager2 {
 	private Bundle getBundleFromServer() {
 		IRestfulClientFactory clientFactory = ctxR4.getRestfulClientFactory();
 		clientFactory.setServerValidationMode(ServerValidationModeEnum.NEVER);
+		// https://nvc-cvn.canada.ca/v1
 		IGenericClient client = clientFactory.newGenericClient(CanadianVaccineCatalogueManager2.getCVCURL());
-		logger.debug("serverBase=" + CanadianVaccineCatalogueManager2.getCVCURL());
+		logger.info("serverBase=" + CanadianVaccineCatalogueManager2.getCVCURL());
 		String Accept = OscarProperties.getInstance().getProperty("CVC_HEADER","application/json+fhir");
 		String xAppDesc = OscarProperties.getInstance().getProperty("oneid.oauth2.clientId","OSCAREMR");
 		// acceptable Accept headers are "application/json+fhir" and "application/json"
 		// acceptable x-app-desc headers are "PHAC NVC Client" or "Local EMR Client".
+		// Register an additional headers interceptor and add one header to it
+		AdditionalRequestHeadersInterceptor interceptor = new AdditionalRequestHeadersInterceptor();
+		interceptor.addHeaderValue("Accept","application/json+fhir");
+		client.registerInterceptor(interceptor);
 		Bundle bundle =client.search()
 			.byUrl(CanadianVaccineCatalogueManager2.getCVCURL() + "/Bundle/NVC")
-			.withAdditionalHeader("Accept","application/json+fhir")
 			.withAdditionalHeader("x-app-desc","Local EMR Client")
-			.returnBundle(Bundle.class).execute();
+			.returnBundle(Bundle.class)
+			.execute();
 		return bundle;
 	}
 	
