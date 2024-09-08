@@ -194,7 +194,7 @@ public class CanadianVaccineCatalogueManager2 {
 	private Bundle getBundleFromServer() {
 		IRestfulClientFactory clientFactory = ctxR4.getRestfulClientFactory();
 		clientFactory.setServerValidationMode(ServerValidationModeEnum.NEVER);
-		// https://nvc-cvn.canada.ca/v1
+		// https://nvc-cnv.canada.ca/v1
 		IGenericClient client = clientFactory.newGenericClient(CanadianVaccineCatalogueManager2.getCVCURL());
 		logger.info("serverBase=" + CanadianVaccineCatalogueManager2.getCVCURL());
 		String Accept = OscarProperties.getInstance().getProperty("CVC_HEADER","application/json+fhir");
@@ -211,7 +211,7 @@ public class CanadianVaccineCatalogueManager2 {
 //			.returnBundle(Bundle.class)
 //			.execute();
 		Bundle bundle =client.search()
-			.byUrl("https://nvc-cvn.canada.ca/v1/Bundle/NVC")
+			.byUrl("https://nvc-cnv.canada.ca/v1/Bundle/NVC")
 			.withAdditionalHeader("Accept","application/json+fhir")
 			.withAdditionalHeader("x-app-desc","PHAC NVC Client")
 			.returnBundle(Bundle.class)
