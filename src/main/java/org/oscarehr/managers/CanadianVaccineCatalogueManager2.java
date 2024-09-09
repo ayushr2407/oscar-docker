@@ -222,7 +222,7 @@ public class CanadianVaccineCatalogueManager2 {
 		
 		// Register a capturing interceptor against the client
 		CapturingInterceptor capturingInterceptor = new CapturingInterceptor();
-		client.registerInterceptor(capturingInterceptor());
+		client.registerInterceptor(capturingInterceptor);
 
 		Bundle bundle =client.search()
 			.byUrl(CanadianVaccineCatalogueManager2.getCVCURL()+"/Bundle/NVC")
@@ -231,8 +231,9 @@ public class CanadianVaccineCatalogueManager2 {
 			
 		logger.info(capturingInterceptor.getLastRequest().toString());
 		logger.debug(capturingInterceptor.getLastResponse().toString());
-		// be sure to tidy up and clear the buffer
-		client.unregisterInterceptor(capturingInterceptor);
+		// tidy up and clear the buffer
+		capturingInterceptor.clear();
+		//client.unregisterInterceptor(capturingInterceptor);
 		
 		return bundle;
 
