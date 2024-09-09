@@ -73,6 +73,9 @@ import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.rest.client.api.IRestfulClientFactory;
 import ca.uhn.fhir.rest.client.api.ServerValidationModeEnum;
 import ca.uhn.fhir.rest.client.interceptor.AdditionalRequestHeadersInterceptor;
+import ca.uhn.fhir.rest.client.interceptor.CapturingInterceptor;
+import ca.uhn.fhir.rest.client.interceptor.LoggingInterceptor;
+
 import oscar.OscarProperties;
 import oscar.log.LogAction;
 
@@ -212,11 +215,25 @@ public class CanadianVaccineCatalogueManager2 {
 		interceptor.addHeaderValue("Accept","application/json+fhir");
 		interceptor.addHeaderValue("x-app-desc","PHAC NVC Client");
 		client.registerInterceptor(interceptor);
+		
+		// Register a logging interceptor against the client
+		LoggingInterceptor loggingInterceptor = new LoggingInterceptor();
+		client.registerInterceptor(loggingInterceptor);
+		
+		// Register a capturing interceptor against the client
+		CapturingInterceptor capturingInterceptor = new CapturingInterceptor();
+		client.registerInterceptor(capturingInterceptor());
 
 		Bundle bundle =client.search()
 			.byUrl(CanadianVaccineCatalogueManager2.getCVCURL()+"/Bundle/NVC")
 			.returnBundle(Bundle.class)
 			.execute();
+			
+		logger.info(capturingInterceptor.getLastRequest().toString());
+		logger.debug(capturingInterceptor.getLastResponse().toString());
+		// be sure to tidy up and clear the buffer
+		capturingInterceptor.clear();
+		
 		return bundle;
 
 	}
