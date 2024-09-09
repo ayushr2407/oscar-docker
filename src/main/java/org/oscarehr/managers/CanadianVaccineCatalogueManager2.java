@@ -44,8 +44,6 @@ import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClient;
-import org.apache.http.ssl.TrustStrategy;
 
 import org.apache.logging.log4j.Logger;
 import org.hl7.fhir.r4.model.Bundle;
