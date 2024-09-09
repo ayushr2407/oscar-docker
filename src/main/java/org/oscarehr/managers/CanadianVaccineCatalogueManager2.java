@@ -33,8 +33,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.net.ssl.SSLContext;	
+import javax.net.ssl.HostnameVerifier;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.impl.client.CloseableHttpClient;
+
 import org.apache.logging.log4j.Logger;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
@@ -190,10 +197,19 @@ public class CanadianVaccineCatalogueManager2 {
 		gtinDao.removeAll();
 		immunizationDao.removeAll();
 	}
-	
+
 	private Bundle getBundleFromServer() {
+	
+		KeyStore truststore = null;
+		SSLContext sslContext = SSLContexts.custom().loadTrustMaterial(truststore, new TrustSelfSignedStrategy()).build();
+
+		HostnameVerifier hostnameVerifier = NoopHostnameVerifier.INSTANCE;
+		SSLConnectionSocketFactory sslFactory = new SSLConnectionSocketFactory(sslContext, hostnameVerifier);
+
+		CloseableHttpClient httpClient = HttpClients.custom().setSSLSocketFactory(sslFactory).build();
+		
 		IRestfulClientFactory clientFactory = ctxR4.getRestfulClientFactory();
-		clientFactory.setServerValidationMode(ServerValidationModeEnum.NEVER);
+		clientFactory.setHttpClient(httpClient);
 		// https://nvc-cnv.canada.ca/v1
 		IGenericClient client = clientFactory.newGenericClient(CanadianVaccineCatalogueManager2.getCVCURL());
 		logger.info("serverBase=" + CanadianVaccineCatalogueManager2.getCVCURL());
@@ -206,12 +222,9 @@ public class CanadianVaccineCatalogueManager2 {
 //		interceptor.addHeaderValue("Accept","application/json+fhir");
 //		interceptor.addHeaderValue("x-app-desc","PHAC NVC Client");
 //		client.registerInterceptor(interceptor);
-//		Bundle bundle =client.search()
-//			.byUrl(CanadianVaccineCatalogueManager2.getCVCURL() + "/Bundle/NVC")
-//			.returnBundle(Bundle.class)
-//			.execute();
+
 		Bundle bundle =client.search()
-			.byUrl("https://nvc-cnv.canada.ca/v1/Bundle/NVC")
+			.byUrl(CanadianVaccineCatalogueManager2.getCVCURL()+"/Bundle/NVC")
 			.withAdditionalHeader("Accept","application/json+fhir")
 			.withAdditionalHeader("x-app-desc","PHAC NVC Client")
 			.returnBundle(Bundle.class)
