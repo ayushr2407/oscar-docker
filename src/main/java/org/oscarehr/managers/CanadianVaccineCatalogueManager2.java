@@ -227,6 +227,7 @@ public class CanadianVaccineCatalogueManager2 {
 		Bundle bundle =client.search()
 			.byUrl(CanadianVaccineCatalogueManager2.getCVCURL()+"/Bundle/NVC")
 			.returnBundle(Bundle.class)
+			.accept("application/json+fhir")
 			.execute();
 			
 		logger.info(capturingInterceptor.getLastRequest().toString());
