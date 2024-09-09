@@ -232,7 +232,7 @@ public class CanadianVaccineCatalogueManager2 {
 		logger.info(capturingInterceptor.getLastRequest().toString());
 		logger.debug(capturingInterceptor.getLastResponse().toString());
 		// be sure to tidy up and clear the buffer
-		capturingInterceptor.clear();
+		client.unregisterInterceptor(capturingInterceptor);
 		
 		return bundle;
 
