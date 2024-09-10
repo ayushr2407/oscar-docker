@@ -227,7 +227,7 @@ public class CanadianVaccineCatalogueManager2 {
 		CapturingInterceptor capturingInterceptor = new CapturingInterceptor();
 		client.registerInterceptor(capturingInterceptor);
 
-		Bundle bundle = client.search().byUrl(relUrl).returnBundle(Bundle.class).execute();
+		Bundle bundle = client.search().byUrl(CanadianVaccineCatalogueManager2.getCVCURL()+relUrl).returnBundle(Bundle.class).execute();
 			
 		logger.info(capturingInterceptor.getLastRequest().toString());
 		logger.debug(capturingInterceptor.getLastResponse().toString());
