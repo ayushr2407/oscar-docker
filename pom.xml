@@ -170,7 +170,7 @@
          <artifactId>jcs</artifactId>
          <version>1.3</version>
       </dependency>
-      <!-- hapi/HL7 -->
+      <!-- hapi/HL7 
       <dependency>
          <groupId>ca.uhn.hapi</groupId>
          <artifactId>hapi-base</artifactId>
@@ -200,7 +200,7 @@
          <groupId>ca.uhn.hapi</groupId>
          <artifactId>hapi-structures-v231</artifactId>
          <version>1.0.1</version>
-      </dependency>
+      </dependency> -->
       <!-- spring -->
       <dependency>
          <groupId>org.springframework</groupId>
