@@ -201,21 +201,23 @@ public class CanadianVaccineCatalogueManager2 {
 		clientFactory.setServerValidationMode(ServerValidationModeEnum.NEVER);
 		
 		// create the client
-		IGenericClient client = clientFactory.newGenericClient(CanadianVaccineCatalogueManager2.getCVCURL());
+		IGenericClient client = clientFactory.newGenericClient(CanadianVaccineCatalogueManager2.getCVCURL()+"/Bundle/NVC");
 		// serverBase=https://nvc-cnv.canada.ca/v1
 		logger.debug("serverBase=" + CanadianVaccineCatalogueManager2.getCVCURL());	
 
 		// acceptable Accept headers are "application/json+fhir" and "application/json"
 		// acceptable x-app-desc headers are "PHAC NVC Client" or "Local EMR Client".
-		String Accept = OscarProperties.getInstance().getProperty("CVC_HEADER","application/json+fhir");
-		String xAppDesc = OscarProperties.getInstance().getProperty("oneid.oauth2.clientId","OSCAREMR");
+		String Accept = OscarProperties.getInstance().getProperty("NVC_ACCEPT","application/json+fhir");
+		String xAppDesc = OscarProperties.getInstance().getProperty("NVC_X_APP","OSCAREMR");
 
 		// Register an additional headers interceptor
 		AdditionalRequestHeadersInterceptor interceptor = new AdditionalRequestHeadersInterceptor();
-		interceptor.addHeaderValue("Accept","application/json+fhir");
-		interceptor.addHeaderValue("x-app-desc","PHAC NVC Client");
+		interceptor.addHeaderValue("Accept", Accept);
+		interceptor.addHeaderValue("x-app-desc", xAppDesc);
 		client.registerInterceptor(interceptor);
-		
+		logger.debug("Accept=" + Accept);	
+		logger.debug("x-app-desc=" + xAppDesc);	
+				
 		// Register a logging interceptor against the client
 		LoggingInterceptor loggingInterceptor = new LoggingInterceptor();
 		client.registerInterceptor(loggingInterceptor);
@@ -225,7 +227,6 @@ public class CanadianVaccineCatalogueManager2 {
 		client.registerInterceptor(capturingInterceptor);
 
 		Bundle bundle =client.search()
-			.byUrl(CanadianVaccineCatalogueManager2.getCVCURL()+"/Bundle/NVC")
 			.returnBundle(Bundle.class)
 			.accept("application/json+fhir")
 			.execute();
