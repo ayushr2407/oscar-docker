@@ -33,6 +33,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
@@ -107,9 +112,13 @@ public class CanadianVaccineCatalogueManager2 {
 		OmdGateway omdGateway = new OmdGateway();
 		
 		Bundle bundle =null;
+		String jsonString = null;
 		
 		try {
-			bundle= getBundleFromServer();
+			//bundle= getBundleFromServer();
+			jsonString getJsonStringFromServer();
+			bundle = getBundleFromJsonString(jsonString);
+			
 		}catch(Exception e) {
 			omdGateway.logError(loggedInInfo, "CVC", "DOWNLOAD", e.getLocalizedMessage());
 			
@@ -209,7 +218,8 @@ public class CanadianVaccineCatalogueManager2 {
 		// acceptable x-app-desc headers are "PHAC NVC Client" or "Local EMR Client".
 		String Accept = OscarProperties.getInstance().getProperty("NVC_ACCEPT","application/json+fhir");
 		String xAppDesc = OscarProperties.getInstance().getProperty("NVC_X_APP","OSCAREMR");
-		String relUrl = OscarProperties.getInstance().getProperty("NVC_BUNDLE","/Bundle/NVC");
+		String relUrl = OscarProperties.getInstance().getProperty("NVC_BUNDLE","/Bundle/NVC");		
+		logger.debug("Full Url=" + CanadianVaccineCatalogueManager2.getCVCURL()+relUrl);			
 		
 		// Register an additional headers interceptor
 		AdditionalRequestHeadersInterceptor interceptor = new AdditionalRequestHeadersInterceptor();
@@ -238,7 +248,30 @@ public class CanadianVaccineCatalogueManager2 {
 		return bundle;
 
 	}
-	
+
+	private String getJsonStringFromServer() {
+
+		HttpClient client = HttpClient.newHttpClient();
+
+		HttpRequest request = HttpRequest.newBuilder()
+			.uri(URI.create("https://nvc-cnv.canada.ca/v1/Bundle/NVC"))
+			.GET()
+			.setHeader("Accept", "application/json+fhir")
+			.setHeader("x-app-desc", "PHAC NVC Client")
+			.build();
+
+		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());	
+		logger.debug(response);
+		return response;
+
+	}
+
+	private Bundle getBundleFromJsonString( String jsonString ) {	
+		IParser parser = ctxR4.newJsonParser().setPrettyPrint(true);
+		Bundle bundle = parser.parseResource(Bundle.class,jsonString);
+		return bundle;	
+	}
+
 	public void updateGenericImmunizations(LoggedInInfo loggedInInfo, ValueSet vs) {
 		 
 		for (ConceptSetComponent c : vs.getCompose().getInclude()) {
