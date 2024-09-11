@@ -76,6 +76,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.rest.client.api.IRestfulClientFactory;
 import ca.uhn.fhir.rest.client.api.ServerValidationModeEnum;
@@ -254,7 +255,7 @@ public class CanadianVaccineCatalogueManager2 {
 	private String getJsonStringFromServer() throws IOException {
 
         CloseableHttpClient httpClient = HttpClients.createDefault();
-		result = null;
+		String result = null;
 		String serverBase = CanadianVaccineCatalogueManager2.getCVCURL();
 		logger.debug("serverBase=" + CanadianVaccineCatalogueManager2.getCVCURL());
 		// acceptable Accept headers are "application/json+fhir" and "application/json"
