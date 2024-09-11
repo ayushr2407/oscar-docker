@@ -427,7 +427,10 @@ public class CanadianVaccineCatalogueManager2 {
 				String manufactureDisplay = null;
 				String routeDisplay = null;
 				String routeCode = null;				
-				
+				String shelfStatus = null;
+				String typicalDose = null;
+				String typicalDoseUofM = null;
+				String strength = null;
 
 				for (Extension ext : cc.getExtension()) {
 					/*
@@ -443,8 +446,8 @@ public class CanadianVaccineCatalogueManager2 {
 						//String status = ext.getValueAsPrimitive().getValueAsString();
 						for(Coding parentConceptCode :shelfStatusConcept.getCoding()) {                        
 							if ((getCVCURL() + "/ValueSet/ShelfStatus").equals(parentConceptCode.getSystem())) {
-								imm.setShelfStatus(parentConceptCode.getDisplay());
-								logger.debug("status: "+parentConceptCode.getDisplay());
+								shelfStatus = parentConceptCode.getDisplay();
+								imm.setShelfStatus(shelfStatus);
 							}
 						}
 					}
@@ -480,16 +483,16 @@ public class CanadianVaccineCatalogueManager2 {
 					}
 					
 					if ((getCVCURL() + "/StructureDefinition/nvc-typical-dose-size").equals(ext.getUrl())) {
-						String typicalDose = ext.getValueAsPrimitive().getValueAsString();
+						typicalDose = ext.getValueAsPrimitive().getValueAsString();
 						imm.setTypicalDose(typicalDose);
 					}
 					
 					if ((getCVCURL() + "/StructureDefinition/nvc-typical-dose-size-uom").equals(ext.getUrl())) {
-						String typicalDoseUofM = ext.getValueAsPrimitive().getValueAsString();
+						typicalDoseUofM = ext.getValueAsPrimitive().getValueAsString();
 						imm.setTypicalDoseUofM(typicalDoseUofM);
 					}
 					if ((getCVCURL() + "/StructureDefinition/nvc-strength").equals(ext.getUrl())) {
-						String strength = ext.getValueAsPrimitive().getValueAsString();
+						strength = ext.getValueAsPrimitive().getValueAsString();
 						imm.setStrength(strength);
 					}
 					
@@ -519,7 +522,8 @@ public class CanadianVaccineCatalogueManager2 {
 					dinManufactureMap.put(imm.getSnomedConceptId(),manufactureDisplay);
 				}
 				imm.setGeneric(false);
-
+				logger.debug("din:"+din+" By:"+manufactureDisplay+" Strength:"+strength+" Typical Dose:"+typicalDose+" "+typicalDoseUofM+" route:"+routeDisplay+"/"+routeCode);
+				
 				saveImmunization(loggedInInfo, imm);
 			}
 		}
