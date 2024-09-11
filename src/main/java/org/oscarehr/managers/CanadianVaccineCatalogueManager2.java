@@ -116,7 +116,7 @@ public class CanadianVaccineCatalogueManager2 {
 		
 		try {
 			//bundle= getBundleFromServer();
-			jsonString getJsonStringFromServer();
+			jsonString = getJsonStringFromServer();
 			bundle = getBundleFromJsonString(jsonString);
 			
 		}catch(Exception e) {
