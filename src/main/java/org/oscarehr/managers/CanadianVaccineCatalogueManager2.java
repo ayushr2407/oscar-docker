@@ -111,7 +111,7 @@ public class CanadianVaccineCatalogueManager2 {
 	Map<String,String> dinManufactureMap = new HashMap<String,String>();
 	Map<String,String> dinStatusMap = new HashMap<String,String>();
 	
-	public void update(LoggedInInfo loggedInInfo) {
+	public void update(LoggedInInfo loggedInInfo) throws IOException {
 		OmdGateway omdGateway = new OmdGateway();
 		
 		Bundle bundle =null;
