@@ -33,10 +33,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHeaders;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -249,22 +260,52 @@ public class CanadianVaccineCatalogueManager2 {
 
 	}
 
-	private String getJsonStringFromServer() {
+	private String getJsonStringFromServer() throws IOException {
 
-		HttpClient client = HttpClient.newHttpClient();
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+		result = null;
+		String serverBase = CanadianVaccineCatalogueManager2.getCVCURL();
+		logger.debug("serverBase=" + CanadianVaccineCatalogueManager2.getCVCURL());
+		// acceptable Accept headers are "application/json+fhir" and "application/json"
+		// acceptable x-app-desc headers are "PHAC NVC Client" or "Local EMR Client".
+		String Accept = OscarProperties.getInstance().getProperty("NVC_ACCEPT","application/json+fhir");
+		String xAppDesc = OscarProperties.getInstance().getProperty("NVC_X_APP","OSCAREMR");
+		String relUrl = OscarProperties.getInstance().getProperty("NVC_BUNDLE","/Bundle/NVC");		
+		logger.debug("Full Url=" + CanadianVaccineCatalogueManager2.getCVCURL()+relUrl);
+		
+        try {
 
-		HttpRequest request = HttpRequest.newBuilder()
-			.uri(URI.create("https://nvc-cnv.canada.ca/v1/Bundle/NVC"))
-			.GET()
-			.setHeader("Accept", "application/json+fhir")
-			.setHeader("x-app-desc", "PHAC NVC Client")
-			.build();
+            HttpGet request = new HttpGet(serverBase+relUrl);
 
-		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());	
-		logger.debug(response);
-		return response;
+            // add request headers
+            request.addHeader("Accept", Accept);
+            request.addHeader("x-app-desc", xAppDesc);
 
-	}
+            CloseableHttpResponse response = httpClient.execute(request);
+
+            try {
+
+                // Get HttpResponse Status
+                logger.debug(response.getProtocolVersion());              // HTTP/1.1
+                logger.debug(response.getStatusLine().getStatusCode());   // 200
+                logger.debug(response.getStatusLine().getReasonPhrase()); // OK
+                logger.debug(response.getStatusLine().toString());        // HTTP/1.1 200 OK
+
+                HttpEntity entity = response.getEntity();
+                if (entity != null) {
+                    // return it as a String
+                    result = EntityUtils.toString(entity);
+                    logger.debug(result);
+                }
+
+            } finally {
+                response.close();
+            }
+        } finally {
+            httpClient.close();
+        }
+		return result;
+    }
 
 	private Bundle getBundleFromJsonString( String jsonString ) {	
 		IParser parser = ctxR4.newJsonParser().setPrettyPrint(true);
