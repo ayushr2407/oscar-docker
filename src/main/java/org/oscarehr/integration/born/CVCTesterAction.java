@@ -186,12 +186,12 @@ public class CVCTesterAction extends DispatchAction {
 		//lot#
 		List<CVCImmunization> l2 = cvcManager.query(query, false, false, true, false,matchedLotNumber);
 		
-		//GTIN
-		List<CVCImmunization> l3 = cvcManager.query(query, false, false, false, true,null);
+		//GTIN not availabe in NVC
+		//List<CVCImmunization> l3 = cvcManager.query(query, false, false, false, true,null);
 		
 		results.addAll(l1);
 		results.addAll(l2);
-		results.addAll(l3);
+		//results.addAll(l3);
 		
 		//unique it
 		Map<String, CVCImmunization> tmp = new HashMap<String, CVCImmunization>();
@@ -200,8 +200,8 @@ public class CVCTesterAction extends DispatchAction {
 		}
 		List<CVCImmunization> uniqueResults = new ArrayList<CVCImmunization>(tmp.values());
 
-		//sort it
-		Collections.sort(uniqueResults, new PrevalenceComparator());
+		//sort it prevalence not available in NVC
+		//Collections.sort(uniqueResults, new PrevalenceComparator());
 				
 		
 		
@@ -227,7 +227,7 @@ public class CVCTesterAction extends DispatchAction {
 
 class PrevalenceComparator implements Comparator<CVCImmunization> {
     public int compare( CVCImmunization i1, CVCImmunization i2 ) {
-  
+		//note that prevalence is not currently populated by the NVC bundle  
             Integer d1 = i1.getPrevalence();
             Integer d2 = i2.getPrevalence();
             
