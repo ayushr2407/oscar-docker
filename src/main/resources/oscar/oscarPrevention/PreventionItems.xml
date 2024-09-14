@@ -5,7 +5,7 @@
     Created on : October 26, 2005, 3:06 PM
     Author     : Jay Gallagher
     Source     : src/main/resources/oscar/oscarPrevention/PreventionItems.xml
-    Updated on : Dec 31, 2020
+    Updated on : September 14, 2024 by Peter Hutten-Czapski
     Description:
         Xml configuration used in the Prevention Module to set up the types of preventions available.
 
@@ -109,7 +109,7 @@ Varicella Immunoglobulin	VarIg
 	<item
 			resultDesc=""
 			desc="Rot-1=Rotavirus Vaccine eg Rotarix"
-			name="Rot"
+			name="Rota"
 			headingName="Immunizations"
 			healthCanadaType=""
 			link="www.novaccine.com/pdffiles/Rotarix_new_package_insert.pdf"
@@ -281,7 +281,8 @@ Varicella Immunoglobulin	VarIg
 	<item
 			resultDesc=""
 			desc="Hep B=Hepatitis B" 
-            name="HepB"
+			displayName="Hep B"
+            name="HB"
 			headingName="Immunizations" 
             healthCanadaType="HB"
 			link="http://www.phac-aspc.gc.ca/naci-ccni/is-si/recimmsche-icy_e.html#HepB"
@@ -312,7 +313,7 @@ Varicella Immunoglobulin	VarIg
 	<item
 			resultDesc=""
 			desc="dTap=Diphtheria, Tetanus and Acellular Pertussis adult/adolescent formulation"
-			name="dTap"
+			name="Tdap"
 			headingName="Immunizations" 
             healthCanadaType="Tdap"
 			link="http://www.phac-aspc.gc.ca/naci-ccni/is-si/recimmsche-icy_e.html#dTap"
@@ -332,8 +333,9 @@ Varicella Immunoglobulin	VarIg
 
 	<item
 			resultDesc=""
-			desc="Flu=Influenza vaccine" 
-            name="Flu"
+			desc="Flu=Influenza vaccine"
+			displayName="Flu"
+            name="Inf"
 			headingName="Immunizations" 
             healthCanadaType="Inf"
 			link="http://www.phac-aspc.gc.ca/naci-ccni/is-si/recimmsche-icy_e.html#Flu"
@@ -353,7 +355,8 @@ Varicella Immunoglobulin	VarIg
 	<item
 			resultDesc=""
 			desc="Hep A=Hepatitis A" 
-            name="HepA"
+			displayName="Hep A"
+            name="HA"
 			headingName="Immunizations" 
             link="" 
             layout="injection" 
@@ -363,7 +366,7 @@ Varicella Immunoglobulin	VarIg
 	<item
 			resultDesc=""
 			desc="Hep AB=Hepatitis AB" 
-            name="HepAB" link=""
+            name="HAHB" link=""
 			headingName="Immunizations" 
             layout="injection" 
             healthCanadaType="HAHB"
@@ -391,14 +394,16 @@ Varicella Immunoglobulin	VarIg
 
 	<item
 			resultDesc=""
-			desc="Rabies=Rabies" name="Rabies" link=""
+			displayName="Rabies"
+			desc="Rab=Rabies" name="Rab" link=""
 			headingName="Immunizations" layout="injection" healthCanadaType="Rab"
 			atc="J07BG01" showIfMinRecordNum="1" />
 
 	<item
 			resultDesc=""
-			desc="Typhoid=Typhoid" 
-            name="Typhoid" link=""
+			displayName="Typhoid"
+			desc="Typh=Typhoid" 
+            name="Typh" link=""
 			headingName="Immunizations" 
             layout="injection" 
             healthCanadaType="Typh-I"
@@ -406,6 +411,7 @@ Varicella Immunoglobulin	VarIg
 
 	<item
 			resultDesc=""
+			displayName="Typhoid Oral"
 			desc="Typhoid - Oral"
 			name="Typh-O"
 			headingName="Immunizations"
@@ -416,7 +422,7 @@ Varicella Immunoglobulin	VarIg
 	<item
 			resultDesc=""
 			desc="Women ages of 9 and 26 years are recommended to receive Human Papillomavirus Vaccine eg Gardasil, Cervarix"
-			name="HPV Vaccine"
+			name="HPV"
 			headingName="Immunizations"
 			healthCanadaType="HPV"
 			link="http://www.cdc.gov/std/treatment/"
@@ -507,6 +513,60 @@ Varicella Immunoglobulin	VarIg
 			link="https://www.cdc.gov/vaccines/covid-19"
 			layout="injection" 
             atc="J07BX03"
+			showIfMinRecordNum="1" />
+			
+	<item
+			resultDesc=""
+			desc="TdP-IPV-Hib=Diphtheria, Tetanus and Acellular Pertussis for children under 18 years of age; IPV=Inactivated Poliovirus; Haemophilus Influenzae type b for children under 5 years of age: combination given at 2, 4, 18 months and 4-6 years"
+			name="TdP-IPV-Hib"
+			headingName="Other"
+			link="http://www.phac-aspc.gc.ca/naci-ccni/is-si/recimmsche-icy_e.html"
+			layout="injection" atc="J07CA06" minAge="0" maxAge="6"
+			showIfMinRecordNum="1" />
+
+
+	<item
+			resultDesc=""
+			desc="DTaP-Hib=Diphtheria, Tetanus, Acellular Pertussis, Haemophilus Influenzae type b - pediatric"
+			name="DTaP-Hib"
+			headingName="Other"
+			healthCanadaType="DTaP-IPV-HB"
+			layout="injection" atc=""
+			showIfMinRecordNum="1"/>
+			
+	<item 
+			resultDesc=""
+			name="RSV" 
+			desc="Recombinant PreF RSV Vaccine eg Arexvy"
+			healthCanadaType="RSV"
+			link="https://ca.gsk.com/media/6988/arexvy.pdf" 
+			layout="injection" 
+			minAge="60"
+			maxAge="100"
+            atc="J07BX05"
+   			showIfMinRecordNum="1" />
+
+	<item 
+			resultDesc=""
+			name="RSVAb" 
+			desc="Monoclonal Antibody RSV Vaccine eg Beyfortus"
+			healthCanadaType="RSVAb"
+			link="https://www.ema.europa.eu/en/medicines/human/EPAR/beyfortus#product-info" 
+			layout="injection" 
+			minAge="0"
+			maxAge="2"
+            atc="J06BD08"
+   			showIfMinRecordNum="1" />
+
+	<!-- Other Immuunization -->
+
+	<item
+			resultDesc=""
+			desc="Other Layout A" 
+            name="OtherA"
+			headingName="Other"
+			healthCanadaType=""
+            link="" layout="injection"
 			showIfMinRecordNum="1" />
 
 	<!--Screenings-->
@@ -645,16 +705,7 @@ Varicella Immunoglobulin	VarIg
 			minAge="13"
 			showIfMinRecordNum="1" />
 
-	<!-- Other -->
-
-	<item
-			resultDesc=""
-			desc="Other Layout A" 
-            name="OtherA"
-			headingName="Other"
-			healthCanadaType=""
-            link="" layout="injection"
-			showIfMinRecordNum="1" />
+	<!-- Other Screening -->
 
 	<item
 			resultDesc=""
@@ -663,45 +714,5 @@ Varicella Immunoglobulin	VarIg
 			headingName="Other" 
             link="" layout="PAPMAM"
 			showIfMinRecordNum="1" />
-
-	<item
-			resultDesc=""
-			desc="TdP-IPV-Hib=Diphtheria, Tetanus and Acellular Pertussis for children under 18 years of age; IPV=Inactivated Poliovirus; Haemophilus Influenzae type b for children under 5 years of age: combination given at 2, 4, 18 months and 4-6 years"
-			name="TdP-IPV-Hib"
-			headingName="Other"
-			link="http://www.phac-aspc.gc.ca/naci-ccni/is-si/recimmsche-icy_e.html"
-			layout="injection" atc="J07CA06" minAge="0" maxAge="6"
-			showIfMinRecordNum="1" />
-
-
-	<item
-			resultDesc=""
-			desc="DTaP-Hib=Diphtheria, Tetanus, Acellular Pertussis, Haemophilus Influenzae type b - pediatric"
-			name="DTaP-Hib"
-			headingName="Other"
-			healthCanadaType="DTaP-IPV-HB"
-			layout="injection" atc=""
-			showIfMinRecordNum="1"/>
-
-	<item
-			resultDesc=""
-			desc="Hepatitis B - Thimerosal free"
-			name="HBTmf"
-			headingName="Other"
-			healthCanadaType="HBTmf"
-			layout="injection" atc="J07BC"
-			showIfMinRecordNum="1" />
-			
-	<item 
-			resultDesc=""
-			name="RSVPreF3" 
-			desc="Recombinant PreF RSV Vaccine eg Arexvy"
-			healthCanadaType="RSVPreF3"
-			link="https://ca.gsk.com/media/6988/arexvy.pdf" 
-			layout="injection" 
-			minAge="60"
-			maxAge="100"
-            atc="J07BX05"
-   			showIfMinRecordNum="1" />
 
 </preventions>

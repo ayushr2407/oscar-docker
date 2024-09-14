@@ -13,8 +13,7 @@
 		<java:condition>prev.getAgeInMonths() &lt; 72</java:condition>
 		<java:condition>prev.getNumberOfPreventionType("DTaP-IPV") == 0</java:condition>
 		<java:condition>prev.getNumberOfPreventionType("DTaP-IPV-Hib") == 0</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib") == 0</java:condition>
-		<java:consequence>              
+		<java:consequence>
               prev.log("DTaP-IPV 1");
               prev.addWarning("DTaP-IPV", "Needs 1st DTaP-IPV-HIB");
         </java:consequence>
@@ -25,9 +24,9 @@
 		</parameter>
 		<java:condition>prev.getAgeInMonths() &gt;= 4</java:condition>
 		<java:condition>prev.getAgeInMonths() &lt;= 72</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("DTaP-IPV-Hib") + prev.getNumberOfPreventionType("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib") == 1</java:condition>
-		<java:condition>prev.getHowManyMonthsSinceLast("DTaP-IPV") &gt;= 2 || prev.getHowManyMonthsSinceLast("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib") &gt;= 2</java:condition>
-		<java:consequence>              
+		<java:condition>prev.getNumberOfPreventionType("DTaP-IPV-Hib") == 1</java:condition>
+		<java:condition>prev.getHowManyMonthsSinceLast("DTaP-IPV") &gt;= 2</java:condition>
+		<java:consequence>
               prev.log("DTaP-IPV 2");
               prev.addWarning("DTaP-IPV", "Needs 2nd DTaP-IPV-HIB");
         </java:consequence>
@@ -36,11 +35,11 @@
 		<parameter identifier="prev">
 			<class>oscar.oscarPrevention.Prevention</class>
 		</parameter>
-		<java:condition>prev.isPassedNextDate("DTaP-IPV-Hib") || prev.isPassedNextDate("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib")</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("DTaP-IPV-Hib") + prev.getNumberOfPreventionType("[[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib") == 1</java:condition>
-		<java:condition>prev.getHowManyMonthsSinceLast("DTaP-IPV-Hib") &gt;= 2 || prev.getHowManyMonthsSinceLast("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib") &gt;= 2</java:condition>
-		<java:condition>!prev.isPreventionNever("DTaP-IPV-Hib") || !prev.isPreventionNever("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib")</java:condition>
-		<java:consequence>              
+		<java:condition>prev.isPassedNextDate("DTaP-IPV-Hib")</java:condition>
+		<java:condition>prev.getNumberOfPreventionType("DTaP-IPV-Hib") == 1</java:condition>
+		<java:condition>prev.getHowManyMonthsSinceLast("DTaP-IPV-Hib") &gt;= 2</java:condition>
+		<java:condition>!prev.isPreventionNever("DTaP-IPV-Hib")</java:condition>
+		<java:consequence>
               prev.log("DTaP-IPV 2");
               prev.addWarning("DTaP-IPV", "Needs 2nd DTaP-IPV-HIB");
         </java:consequence>
@@ -51,10 +50,10 @@
 		</parameter>
 		<java:condition>prev.getAgeInMonths() &gt;= 6</java:condition>
 		<java:condition>prev.getAgeInMonths() &lt; 72</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("DTaP-IPV-Hib") + prev.getNumberOfPreventionType("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib") == 2</java:condition>
-		<java:condition>prev.getHowManyMonthsSinceLast("DTaP-IPV-Hib") &gt;= 2 || prev.getHowManyMonthsSinceLast("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib") &gt;= 2</java:condition>
-		<java:condition>!prev.isPreventionNever("DTaP-IPV-Hib") || !prev.isPreventionNever("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib")</java:condition>
-		<java:consequence>              
+		<java:condition>prev.getNumberOfPreventionType("DTaP-IPV-Hib") == 2</java:condition>
+		<java:condition>prev.getHowManyMonthsSinceLast("DTaP-IPV-Hib") &gt;= 2 </java:condition>
+		<java:condition>!prev.isPreventionNever("DTaP-IPV-Hib")</java:condition>
+		<java:consequence>
               prev.log("DTaP-IPV 3");
               prev.addWarning("DTaP-IPV", "Needs 3rd DTaP-IPV-HIB");
         </java:consequence>
@@ -63,11 +62,11 @@
 		<parameter identifier="prev">
 			<class>oscar.oscarPrevention.Prevention</class>
 		</parameter>
-		<java:condition>prev.isPassedNextDate("DTaP-IPV-Hib") || prev.isPassedNextDate("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib")</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("DTaP-IPV-Hib") + prev.getNumberOfPreventionType("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib") == 2</java:condition>
-		<java:condition>prev.getHowManyMonthsSinceLast("DTaP-IPV-Hib") &gt;= 2 || prev.getHowManyMonthsSinceLast("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib") &gt;= 2</java:condition>
-		<java:condition>!prev.isPreventionNever("DTaP-IPV-Hib") || !prev.isPreventionNever("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib")</java:condition>
-		<java:consequence>              
+		<java:condition>prev.isPassedNextDate("DTaP-IPV-Hib")</java:condition>
+		<java:condition>prev.getNumberOfPreventionType("DTaP-IPV-Hib") == 2</java:condition>
+		<java:condition>prev.getHowManyMonthsSinceLast("DTaP-IPV-Hib") &gt;= 2 </java:condition>
+		<java:condition>!prev.isPreventionNever("DTaP-IPV-Hib")</java:condition>
+		<java:consequence>
               prev.log("DTaP-IPV 2.1");
               prev.addWarning("DTaP-IPV", "Needs 3rd DTaP-IPV /HIB");
         </java:consequence>
@@ -78,10 +77,10 @@
 		</parameter>
 		<java:condition>prev.getAgeInMonths() &gt;= 18</java:condition>
 		<java:condition>prev.getAgeInMonths() &lt; 72</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("DTaP-IPV-Hib") + prev.getNumberOfPreventionType("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib") == 3</java:condition>
-		<java:condition>prev.getHowManyMonthsSinceLast("DTaP-IPV-Hib") &gt;= 12 || prev.getHowManyMonthsSinceLast("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib") &gt;= 12</java:condition>
-		<java:condition>!prev.isPreventionNever("DTaP-IPV-Hib") || !prev.isPreventionNever("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib")</java:condition>
-		<java:consequence>              
+		<java:condition>prev.getNumberOfPreventionType("DTaP-IPV-Hib") == 3</java:condition>
+		<java:condition>prev.getHowManyMonthsSinceLast("DTaP-IPV-Hib") &gt;= 12</java:condition>
+		<java:condition>!prev.isPreventionNever("DTaP-IPV-Hib")</java:condition>
+		<java:consequence>
               prev.log("DTaP-IPV 4");
               prev.addWarning("DTaP-IPV", "Needs 4th DTaP-IPV-HIB");
         </java:consequence>
@@ -91,10 +90,10 @@
 			<class>oscar.oscarPrevention.Prevention</class>
 		</parameter>
 		<java:condition>prev.isPassedNextDate("DTaP-IPV-Hib")</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("DTaP-IPV-Hib") + prev.getNumberOfPreventionType("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib") == 2</java:condition>
-		<java:condition>prev.getHowManyMonthsSinceLast("DTaP-IPV-Hib") &gt;= 2 || prev.getHowManyMonthsSinceLast("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib") &gt;= 2</java:condition>
-		<java:condition>!prev.isPreventionNever("DTaP-IPV-Hib") || !prev.isPreventionNever("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib")</java:condition>
-		<java:consequence>              
+		<java:condition>prev.getNumberOfPreventionType("DTaP-IPV-Hib") == 2</java:condition>
+		<java:condition>prev.getHowManyMonthsSinceLast("DTaP-IPV-Hib") &gt;= 2 </java:condition>
+		<java:condition>!prev.isPreventionNever("DTaP-IPV-Hib")</java:condition>
+		<java:consequence>
               prev.log("DTaP-IPV 2.1");
               prev.addWarning("DTaP-IPV", "Needs 3rd DTaP-IPV-Hib");
         </java:consequence>
@@ -105,10 +104,10 @@
 		</parameter>
 		<java:condition>prev.getAgeInMonths() &gt;= 12</java:condition>
 		<java:condition>prev.getAgeInMonths() &lt; 60</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("DTaP-IPV-Hib") + prev.getNumberOfPreventionType("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib") + prev.getNumberOfPreventionType("[DTaP-IPV] Diphtheria + Tetanus + Pertussis + Polio") == 1</java:condition>
-		<java:condition>prev.getHowManyMonthsSinceLast("DTaP-IPV") &gt;= 2 || prev.getHowManyMonthsSinceLast("[DTaP-IPV] Diphtheria + Tetanus + Pertussis + Polio") &gt;= 2</java:condition>
-		<java:condition>!prev.isPreventionNever("DTaP-IPV-Hib") || !prev.isPreventionNever("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib")</java:condition>
-		<java:consequence>              
+		<java:condition>prev.getNumberOfPreventionType("DTaP-IPV-Hib") + prev.getNumberOfPreventionType("DTaP-IPV") == 1</java:condition>
+		<java:condition>prev.getHowManyMonthsSinceLast("DTaP-IPV") &gt;= 2 </java:condition>
+		<java:condition>!prev.isPreventionNever("DTaP-IPV-Hib")</java:condition>
+		<java:consequence>
               prev.log("DTaP-IPV 3");
               prev.addWarning("DTaP-IPV", "Needs 2nd DTaP-IPV-HIB");
         </java:consequence>
@@ -119,10 +118,10 @@
 		</parameter>
 		<java:condition>prev.getAgeInMonths() &gt;= 2</java:condition>
 		<java:condition>prev.getAgeInMonths() &lt; 5</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("Rot") +	prev.getNumberOfPreventionType("[Rota-5] Rotavirus pentavalent") == 0</java:condition>
+		<java:condition>prev.getNumberOfPreventionType("Rota-5") +	prev.getNumberOfPreventionType("Rota") == 0</java:condition>
 		<java:consequence>
              System.out.println("Rot 1");
-             prev.addWarning("Rot", "Needs First Rota-5 vaccine");
+             prev.addWarning("Rota", "Needs First Rota-5 vaccine");
        </java:consequence>
 	</rule>
 	<rule name="Rot 2">
@@ -131,12 +130,12 @@
 		</parameter>
 		<java:condition>prev.getAgeInMonths() &gt;= 4</java:condition>
 		<java:condition>prev.getAgeInMonths() &lt;= 6</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("Rot") +	prev.getNumberOfPreventionType("[Rota-5] Rotavirus pentavalent") == 1</java:condition>
-		<java:condition>prev.getHowManyMonthsSinceLast("Rot") &gt;= 1 || prev.getHowManyMonthsSinceLast("[Rota-5] Rotavirus pentavalent") &gt;= 1</java:condition>
-		<java:condition>!prev.isPreventionNever("Rot") || !prev.isPreventionNever("[Rota-5] Rotavirus pentavalent")</java:condition>
+		<java:condition>prev.getNumberOfPreventionType("Rota") + prev.getNumberOfPreventionType("Rota-5") == 1</java:condition>
+		<java:condition>prev.getHowManyMonthsSinceLast("Rota") &gt;= 1 || prev.getHowManyMonthsSinceLast("Rota-5") &gt;= 1</java:condition>
+		<java:condition>!prev.isPreventionNever("Rota") || !prev.isPreventionNever("Rota-5")</java:condition>
 		<java:consequence>
              System.out.println("Rot 2");
-             prev.addWarning("Rot", "Needs 2nd Rot-5 vaccine");
+             prev.addWarning("Rota", "Needs 2nd Rota-5 vaccine");
        </java:consequence>
 	</rule>
 	<rule name="Pneu-C 1">
@@ -145,10 +144,10 @@
 		</parameter>
 		<java:condition>prev.getAgeInMonths() &gt;= 2</java:condition>
 		<java:condition>prev.getAgeInMonths() &lt; 48</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("Pneu-C") + prev.getNumberOfPreventionType("[Pneu-C] Pneumococcal conjugate") + prev.getNumberOfPreventionType("[Pneu-C-13] Pneumococcal conjugate 13") == 0</java:condition>
-		<java:consequence>              
+		<java:condition>prev.getNumberOfPreventionType("Pneu-C") + prev.getNumberOfPreventionType("Pneu-C-20") + prev.getNumberOfPreventionType("Pneu-C-15") + prev.getNumberOfPreventionType("Pneu-C-13") == 0</java:condition>
+		<java:consequence>
               prev.log("Pneu-C 1");
-              prev.addWarning("Pneu-C", "Needs 1st Pneu-C-13");
+              prev.addWarning("Pneu-C", "Needs 1st Pneu-C");
         </java:consequence>
 	</rule>
 	<rule name="Pneu-C 2">
@@ -157,11 +156,11 @@
 		</parameter>
 		<java:condition>prev.getAgeInMonths() &gt;= 4</java:condition>
 		<java:condition>prev.getAgeInMonths() &lt; 26</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("Pneu-C") + prev.getNumberOfPreventionType("[Pneu-C] Pneumococcal conjugate") + prev.getNumberOfPreventionType("[Pneu-C-13] Pneumococcal conjugate 13") == 1</java:condition>
-		<java:condition>prev.getHowManyMonthsSinceLast("Pneu-C") &gt;= 2 || prev.getHowManyMonthsSinceLast("[Pneu-C] Pneumococcal conjugate") &gt;= 2 || prev.getHowManyMonthsSinceLast("[Pneu-C-13] Pneumococcal conjugate 13") &gt;= 2</java:condition>
-		<java:consequence>              
+		<java:condition>prev.getNumberOfPreventionType("Pneu-C") + prev.getNumberOfPreventionType("Pneu-C-20") + prev.getNumberOfPreventionType("Pneu-C-15") + prev.getNumberOfPreventionType("Pneu-C-13") == 1</java:condition>
+		<java:condition>prev.getHowManyMonthsSinceLast("Pneu-C") &gt;= 2 || prev.getHowManyMonthsSinceLast("Pneu-C-20") &gt;= 2 || prev.getHowManyMonthsSinceLast("Pneu-C-13") &gt;= 2</java:condition>
+		<java:consequence>
               prev.log("Pneu-C 2");
-              prev.addWarning("Pneu-C", "Needs 2nd Pneu-C-13");
+              prev.addWarning("Pneu-C", "Needs 2nd Pneu-C");
         </java:consequence>
 	</rule>
 	<rule name="Pneu-C 3">
@@ -170,11 +169,11 @@
 		</parameter>
 		<java:condition>prev.getAgeInMonths() &gt;= 12</java:condition>
 		<java:condition>prev.getAgeInMonths() &lt; 24</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("Pneu-C") + prev.getNumberOfPreventionType("[Pneu-C] Pneumococcal conjugate") + prev.getNumberOfPreventionType("[Pneu-C-13] Pneumococcal conjugate 13") == 2</java:condition>
-		<java:condition>prev.getHowManyMonthsSinceLast("Pneu-C") &gt;= 2 || prev.getHowManyMonthsSinceLast("[Pneu-C-13] Pneumococcal conjugate 13") &gt;= 2</java:condition>
-		<java:consequence>              
+		<java:condition>prev.getNumberOfPreventionType("Pneu-C") + prev.getNumberOfPreventionType("Pneu-C-20") + prev.getNumberOfPreventionType("Pneu-C-15") + prev.getNumberOfPreventionType("Pneu-C-13") == 2</java:condition>
+		<java:condition>prev.getHowManyMonthsSinceLast("Pneu-C") &gt;= 2 || prev.getHowManyMonthsSinceLast("Pneu-C-20") &gt;= 2 || prev.getHowManyMonthsSinceLast("Pneu-C-13") &gt;= 2</java:condition>
+		<java:consequence>
               prev.log("Pneu-C 3");
-              prev.addWarning("Pneu-C", "Needs 3rd Pneu-C-13");
+              prev.addWarning("Pneu-C", "Needs 3rd Pneu-C");
         </java:consequence>
 	</rule>
 	<rule name="MMR 1">
@@ -183,8 +182,8 @@
 		</parameter>
 		<java:condition>prev.getAgeInMonths() &gt;= 12</java:condition>
 		<java:condition>prev.getAgeInYears() &lt; 4</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("MMR") + prev.getNumberOfPreventionType("[MMR] Measles + Mumps + Rubella") + prev.getNumberOfPreventionType("[MMR-Var] Measles + Mumps + Rubella + Varicella") + prev.getNumberOfPreventionType("MMRV") == 0</java:condition>
-		<java:consequence>       
+		<java:condition>prev.getNumberOfPreventionType("MMR") + prev.getNumberOfPreventionType("MMR-Var") == 0</java:condition>
+		<java:consequence>
               prev.log("MMR 1");
               prev.addWarning("MMR", "Needs First MMR");
         </java:consequence>
@@ -195,10 +194,10 @@
 		</parameter>
 		<java:condition>prev.getAgeInMonths() &gt;= 48</java:condition>
 		<java:condition>prev.getAgeInYears() &lt; 6</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("MMR") + prev.getNumberOfPreventionType("[MMR] Measles + Mumps + Rubella") + prev.getNumberOfPreventionType("[MMR-Var] Measles + Mumps + Rubella + Varicella") + prev.getNumberOfPreventionType("MMRV") == 0</java:condition>
-		<java:consequence>              
+		<java:condition>prev.getNumberOfPreventionType("MMR-Var") == 0</java:condition>
+		<java:consequence>
               prev.log("MMR 2");
-              prev.addWarning("MMR", "Needs 1st MMRV");
+              prev.addWarning("MMR", "Needs 1st MMR-Var");
         </java:consequence>
 	</rule>
 	<rule name="MMR 3">
@@ -207,11 +206,11 @@
 		</parameter>
 		<java:condition>prev.getAgeInMonths() &gt;= 48</java:condition>
 		<java:condition>prev.getAgeInYears() &lt; 6</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("MMR") + prev.getNumberOfPreventionType("[MMR] Measles + Mumps + Rubella") == 1</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("[MMR-Var] Measles + Mumps + Rubella + Varicella") + prev.getNumberOfPreventionType("MMRV") == 0</java:condition>
-		<java:consequence>              
+		<java:condition>prev.getNumberOfPreventionType("MMR") == 1</java:condition>
+		<java:condition>prev.getNumberOfPreventionType("MMR-Var") == 0</java:condition>
+		<java:consequence>
               prev.log("MMR 3");
-              prev.addWarning("MMR", "Needs 1st MMRV");
+              prev.addWarning("MMR", "Needs 1st MMR-Var");
         </java:consequence>
 	</rule>
 	<rule name="MenC-C 1">
@@ -220,8 +219,8 @@
 		</parameter>
 		<java:condition>prev.getAgeInMonths() &gt;= 12</java:condition>
 		<java:condition>prev.getAgeInYears() &lt; 2</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("MenC-C") + prev.getNumberOfPreventionType("[Men-C-C] Meningococcal conjugate C") == 0</java:condition>
-		<java:consequence>              
+		<java:condition>prev.getNumberOfPreventionType("MenC-C") + prev.getNumberOfPreventionType("Men-C-ACYW") == 0</java:condition>
+		<java:consequence>
               prev.log("Pneu-C 4");
               prev.addWarning("MenC-C", "Needs MenC-C");
         </java:consequence>
@@ -232,8 +231,8 @@
 		</parameter>
 		<java:condition>prev.getAgeInYears() &gt;= 12</java:condition>
 		<java:condition>prev.getAgeInYears() &lt; 19</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("[Men-ACYW-135] Meningococcal A+C+Y+W135") + prev.getNumberOfPreventionType("Men-C-ACYW-135") == 0</java:condition>
-		<java:consequence>              
+		<java:condition>prev.getNumberOfPreventionType("Men-ACYW-135") + prev.getNumberOfPreventionType("Men-C-ACYW-135") == 0</java:condition>
+		<java:consequence>
               prev.log("MenC-C 2");
               prev.addWarning("MenC-C", "Needs Men-ACYW-135");
         </java:consequence>
@@ -244,8 +243,8 @@
 		</parameter>
 		<java:condition>prev.getAgeInYears() &gt;= 12</java:condition>
 		<java:condition>prev.getAgeInYears() &lt; 19</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("[HPV-9] Human Papillomavirus") + prev.getNumberOfPreventionType("[HPV-4] Human Papillomavirus")  + prev.getNumberOfPreventionType("HPV Vaccine") == 0</java:condition>
-		<java:consequence>              
+		<java:condition>prev.getNumberOfPreventionType("HPV-9") + prev.getNumberOfPreventionType("HPV-4")  + prev.getNumberOfPreventionType("HPV") == 0</java:condition>
+		<java:consequence>
               prev.log("HPV 1");
               prev.addWarning("HPV", "Needs HPV");
         </java:consequence>
@@ -256,22 +255,21 @@
 		</parameter>
 		<java:condition>prev.getAgeInYears() &gt;= 12</java:condition>
 		<java:condition>prev.getAgeInYears() &lt; 19</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("[HB] Hepatitis B") + prev.getNumberOfPreventionType("HepB") + prev.getNumberOfPreventionType("HepAB") == 0</java:condition>
-		<java:consequence>              
+		<java:condition>prev.getNumberOfPreventionType("HB") + prev.getNumberOfPreventionType("HAHB") == 0</java:condition>
+		<java:consequence>
               prev.log("HB 1");
               prev.addWarning("HB", "Needs HB");
         </java:consequence>
-	</rule> 
-
+	</rule>
 	<rule name="VZ 1">
 		<parameter identifier="prev">
 			<class>oscar.oscarPrevention.Prevention</class>
 		</parameter>
 		<java:condition>prev.getAgeInMonths() &gt;= 15</java:condition>
 		<java:condition>prev.getAgeInMonths() &lt;= 24 </java:condition>
-		<java:condition>prev.getNumberOfPreventionType("VZ") + prev.getNumberOfPreventionType("[Var] Varicella") == 0</java:condition>
-		<java:condition>prev.getHowManyDaysSinceLast("MMR") &gt;= 28 || prev.getHowManyDaysSinceLast("[MMR] Measles + Mumps + Rubella") &gt;= 28</java:condition>
-		<java:consequence>              
+		<java:condition>prev.getNumberOfPreventionType("Var") == 0</java:condition>
+		<java:condition>prev.getHowManyDaysSinceLast("MMR") &gt;= 28 || prev.getHowManyDaysSinceLast("MMR-Var") &gt;= 28</java:condition>
+		<java:consequence>
               prev.log("VZ 1");
               prev.addWarning("VZ", "Needs Var");
         </java:consequence>
@@ -282,8 +280,8 @@
 		</parameter>
 		<java:condition>prev.getAgeInMonths() &gt;= 15</java:condition>
 		<java:condition>prev.getAgeInMonths() &lt;= 36 </java:condition>
-		<java:condition>prev.getNumberOfPreventionType("VZ") + prev.getNumberOfPreventionType("[Var] Varicella") == 0</java:condition>
-		<java:consequence>              
+		<java:condition>prev.getNumberOfPreventionType("Var") == 0</java:condition>
+		<java:consequence>
               prev.log("VZ 2");
               prev.addWarning("VZ", "Needs Var");
         </java:consequence>
@@ -294,8 +292,8 @@
 		</parameter>
 		<java:condition>prev.getAgeInYears() &gt;= 4</java:condition>
 		<java:condition>prev.getAgeInYears() &lt;= 6 </java:condition>
-		<java:condition>prev.getNumberOfPreventionType("VZ") + prev.getNumberOfPreventionType("[Var] Varicella") + prev.getNumberOfPreventionType("MMRV") + prev.getNumberOfPreventionType("[MMR-Var] Measles + Mumps + Rubella + Varicella") == 0</java:condition>
-		<java:consequence>              
+		<java:condition>prev.getNumberOfPreventionType("Var") + prev.getNumberOfPreventionType("MMR-Var") == 0</java:condition>
+		<java:consequence>
               prev.log("VZ 3");
               prev.addWarning("VZ", "Needs Var or MMR-Var");
         </java:consequence>
@@ -306,8 +304,8 @@
 		</parameter>
 		<java:condition>prev.getAgeInYears() &gt;= 4</java:condition>
 		<java:condition>prev.getAgeInYears() &lt;= 6 </java:condition>
-		<java:condition>prev.getNumberOfPreventionType("VZ") + prev.getNumberOfPreventionType("[Var] Varicella") + prev.getNumberOfPreventionType("MMRV") + prev.getNumberOfPreventionType("[MMR-Var] Measles + Mumps + Rubella + Varicella") == 1</java:condition>
-		<java:consequence>              
+		<java:condition>prev.getNumberOfPreventionType("Var") + prev.getNumberOfPreventionType("MMR-Var") == 1</java:condition>
+		<java:consequence>
               prev.log("VZ 4");
               prev.addWarning("VZ", "Needs MMR-Var");
         </java:consequence>
@@ -317,9 +315,9 @@
 			<class>oscar.oscarPrevention.Prevention</class>
 		</parameter>
 		<java:condition>prev.getAgeInYears() &gt;= 14</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("dTap") + prev.getNumberOfPreventionType("[Tdap] Tetanus + Diphtheria + Pertussis") == 0</java:condition>
-		<java:condition>prev.getHowManyMonthsSinceLast("Td") &gt;= 120 || prev.getHowManyMonthsSinceLast("[Td] Tetanus + Diphtheria") &gt;= 120 || prev.getNumberOfPreventionType("Td") + prev.getNumberOfPreventionType("[Td] Tetanus + Diphtheria") == 0</java:condition>
-		<java:consequence>              
+		<java:condition>prev.getNumberOfPreventionType("dTap") + prev.getNumberOfPreventionType("Tdap") == 0</java:condition>
+		<java:condition>prev.getHowManyMonthsSinceLast("Td") &gt;= 120 || prev.getNumberOfPreventionType("Td") == 0</java:condition>
+		<java:consequence>
               prev.log("dTap 1");
               prev.addWarning("dTap", "Needs Tdap");
         </java:consequence>
@@ -329,10 +327,10 @@
 			<class>oscar.oscarPrevention.Prevention</class>
 		</parameter>
 		<java:condition>prev.getAgeInYears() &gt;= 14</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("Td") + prev.getNumberOfPreventionType("[Td] Tetanus + Diphtheria") == 0</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("dTap") + prev.getNumberOfPreventionType("[Tdap] Tetanus + Diphtheria + Pertussis") &gt;= 1</java:condition>
-		<java:condition>prev.getHowManyMonthsSinceLast("dTaP") &gt;= 120 || prev.getHowManyMonthsSinceLast("[Tdap] Tetanus + Diphtheria + Pertussis") &gt;= 120</java:condition>
-		<java:consequence>              
+		<java:condition>prev.getNumberOfPreventionType("Td") == 0</java:condition>
+		<java:condition>prev.getNumberOfPreventionType("Tdap") &gt;= 1</java:condition>
+		<java:condition>prev.getHowManyMonthsSinceLast("dTaP") &gt;= 120 || prev.getHowManyMonthsSinceLast("Tdap") &gt;= 120</java:condition>
+		<java:consequence>
               prev.log("Td 1");
               prev.addWarning("Td", "Needs first Td");
         </java:consequence>
@@ -342,9 +340,9 @@
 			<class>oscar.oscarPrevention.Prevention</class>
 		</parameter>
 		<java:condition>prev.getAgeInYears() &gt;= 14</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("Td") + prev.getNumberOfPreventionType("dTap") + prev.getNumberOfPreventionType("[Td] Tetanus + Diphtheria") + prev.getNumberOfPreventionType("[Tdap] Tetanus + Diphtheria + Pertussis") &gt;= 1</java:condition>
-		<java:condition>(prev.getHowManyMonthsSinceLast("Td") &gt;= 120 || prev.getHowManyMonthsSinceLast("Td") &lt; 0)&amp;&amp;(prev.getHowManyMonthsSinceLast("dTap") &gt;= 120 || prev.getHowManyMonthsSinceLast("dTap") &lt; 0)&amp;&amp;(prev.getHowManyMonthsSinceLast("[Td] Tetanus + Diphtheria") &gt;= 120 || prev.getHowManyMonthsSinceLast("[Td] Tetanus + Diphtheria") &lt; 0)&amp;&amp;(prev.getHowManyMonthsSinceLast("[Tdap] Tetanus + Diphtheria + Pertussis") &gt;= 120 || prev.getHowManyMonthsSinceLast("[Tdap] Tetanus + Diphtheria + Pertussis") &lt; 0)</java:condition>
-		<java:consequence>              
+		<java:condition>prev.getNumberOfPreventionType("Td") + prev.getNumberOfPreventionType("Tdap") &gt;= 1</java:condition>
+		<java:condition>(prev.getHowManyMonthsSinceLast("Td") &gt;= 120 || prev.getHowManyMonthsSinceLast("Td") &lt; 0)&amp;&amp;(prev.getHowManyMonthsSinceLast("Tdap") &gt;= 120 || prev.getHowManyMonthsSinceLast("Tdap") &lt; 0)&amp;&amp;(prev.getHowManyMonthsSinceLast("Td") &gt;= 120 || prev.getHowManyMonthsSinceLast("Td") &lt; 0)&amp;&amp;(prev.getHowManyMonthsSinceLast("Tdap") &gt;= 120 || prev.getHowManyMonthsSinceLast("Tdap") &lt; 0)</java:condition>
+		<java:consequence>
               prev.log("Td 2");
               prev.addWarning("Td", "Needs repeat Td");
         </java:consequence>
@@ -354,8 +352,8 @@
 			<class>oscar.oscarPrevention.Prevention</class>
 		</parameter>
 		<java:condition>prev.getAgeInYears() &gt;=65</java:condition>
-		<java:condition>(prev.getHowManyMonthsSinceLast("Flu") &gt;= 12 || prev.getHowManyMonthsSinceLast("Flu") &lt;0)&amp;&amp;(prev.getHowManyMonthsSinceLast("[Inf] Influenza trivalent high-dose") &gt;= 12 || prev.getHowManyMonthsSinceLast("[Inf] Influenza trivalent high-dose") &lt;0)&amp;&amp;(prev.getHowManyMonthsSinceLast("[Inf] Influenza trivalent") &gt;= 12 || prev.getHowManyMonthsSinceLast("[Inf] Influenza trivalent") &lt;0) &amp;&amp;(prev.getHowManyMonthsSinceLast("[Inf] Influenza quadrivalent") &gt;= 12 || prev.getHowManyMonthsSinceLast("[Inf] Influenza quadrivalent") &lt;0) &amp;&amp;(prev.getHowManyMonthsSinceLast("[Inf] Influenza quadrivalent high-dose") &gt;= 12 || prev.getHowManyMonthsSinceLast("[Inf] Influenza quadrivalent high-dose")&lt;0)&amp;&amp; (prev.getHowManyMonthsSinceLast("[Inf] Influenza") &gt;= 12 || prev.getHowManyMonthsSinceLast("[Inf] Influenza") &lt;0)</java:condition>
-		<java:consequence>              
+		<java:condition>(prev.getHowManyMonthsSinceLast("Inf") &gt;= 12 || prev.getHowManyMonthsSinceLast("Inf") &lt;0)</java:condition>
+		<java:consequence>
               prev.log("Flu 2");
               prev.addWarning("Flu", "Needs Influenza Shot ");
         </java:consequence>
@@ -365,13 +363,8 @@
 			<class>oscar.oscarPrevention.Prevention</class>
 		</parameter>
 		<java:condition>prev.getAgeInYears() &gt;=65</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("Flu") == 0</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("[Inf] Influenza trivalent") == 0</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("[Inf] Influenza trivalent high-dose") == 0</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("[Inf] Influenza quadrivalent") == 0</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("[Inf] Influenza quadrivalent high-dose") == 0</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("[Inf] Influenza") == 0</java:condition>
-		<java:consequence>              
+		<java:condition>prev.getNumberOfPreventionType("Inf") == 0</java:condition>
+		<java:consequence>
               prev.log("Flu 3");
               prev.addWarning("Flu", "No Influenza Shots on File ");
         </java:consequence>
@@ -382,13 +375,13 @@
 		</parameter>
 		<java:condition>prev.getAgeInYears() &gt;=65</java:condition>
 		<java:condition>prev.getAgeInYears() &lt;=70</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("Pneumovax") == 0</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("Pneu-C") == 0</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("Pneumococcus") == 0</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("[Pneu-C-13] Pneumococcal conjugate 13") == 0</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("[Pneu-P] Pneumococcal polysaccharide") == 0</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("[Pneu-P-23] Pneumococcal polysaccharide 23") == 0</java:condition>
-		<java:consequence>              
+		<java:condition>prev.getNumberOfPreventionType("Pneu-P-23") == 0</java:condition>
+		<java:condition>prev.getNumberOfPreventionType("Pneu-C-20") == 0</java:condition>
+		<java:condition>prev.getNumberOfPreventionType("Pneu-C-15") == 0</java:condition>
+		<java:condition>prev.getNumberOfPreventionType("Pneu-C-13") == 0</java:condition>
+		<java:condition>prev.getNumberOfPreventionType("Pneu-C-10") == 0</java:condition>
+		<java:condition>prev.getNumberOfPreventionType("Pneu-C-7") == 0</java:condition>
+		<java:consequence>
               prev.log("Pneumo 23");
               prev.addWarning("Pneumo23", "Needs Pneumococcal Vaccine ");
         </java:consequence>
@@ -399,12 +392,10 @@
 		</parameter>
 		<java:condition>prev.getAgeInYears() &gt;=65</java:condition>
 		<java:condition>prev.getAgeInYears() &lt;=70</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("HZV") == 0</java:condition>
+		<java:condition>prev.getNumberOfPreventionType("LZV") == 0</java:condition>
 		<java:condition>prev.getNumberOfPreventionType("Zostavax") == 0</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("[Zos] Zoster (Shingles)") == 0</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("[Zos] Zoster (Shingles) live") == 0</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("[Zos] Zoster (Shingles) non-live") == 0</java:condition>
-		<java:consequence>              
+		<java:condition>prev.getNumberOfPreventionType("Zos") == 0</java:condition>
+		<java:consequence>
               prev.log("Zoster");
               prev.addWarning("Zoster", "Needs Shingles Vaccine ");
         </java:consequence>
@@ -415,12 +406,12 @@
 		</parameter>
 		<java:condition>prev.getAgeInYears() &gt;=65</java:condition>
 		<java:condition>prev.getAgeInYears() &lt;=70</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("[Zos] Zoster (Shingles) non-live") + prev.getNumberOfPreventionType("HZV") == 1</java:condition>
-		<java:condition>prev.getHowManyMonthsSinceLast("[Zos] Zoster (Shingles) non-live") &gt;=2 || prev.getHowManyMonthsSinceLast("HZV") &gt;=2</java:condition>
-		<java:condition>prev.getHowManyMonthsSinceLast("[Zos] Zoster (Shingles) non-live") &lt;6 &amp;&amp; prev.getHowManyMonthsSinceLast("HZV") &lt;6</java:condition>
-		<java:consequence>              
+		<java:condition>prev.getNumberOfPreventionType("Zos") + prev.getNumberOfPreventionType("LZV") == 1</java:condition>
+		<java:condition>prev.getHowManyMonthsSinceLast("Zos") &gt;=2 || prev.getHowManyMonthsSinceLast("LZV") &gt;=2</java:condition>
+		<java:condition>prev.getHowManyMonthsSinceLast("Zos") &lt;6 &amp;&amp; prev.getHowManyMonthsSinceLast("LZV") &lt;6</java:condition>
+		<java:consequence>
               prev.log("Zoster2");
-              prev.addWarning("Zoster", "Needs Second Zoster Vaccine ");
+              prev.addWarning("Zoster", "Needs Second Shingles Vaccine ");
         </java:consequence>
 	</rule>
 	<rule name="HPV-CERVIX 1">
@@ -435,7 +426,7 @@
 		<java:condition>!prev.isPreventionNever("HPV-CERVIX")</java:condition>
 		<java:condition>!prev.isNextDateSet("HPV-CERVIX")</java:condition>
 		<java:condition>!prev.isInelligible("HPV-CERVIX")</java:condition>
-		<java:consequence>              
+		<java:consequence>
               prev.log("PAP 1");
               prev.addReminder("PAP is coming due for this patient");
         </java:consequence>
@@ -452,7 +443,7 @@
 		<java:condition>!prev.isPreventionNever("PAP")</java:condition>
 		<java:condition>!prev.isNextDateSet("PAP")</java:condition>
 		<java:condition>!prev.isInelligible("PAP")</java:condition>
-		<java:consequence>              
+		<java:consequence>
               prev.log("PAP 1");
               prev.addReminder("PAP is coming due for this patient");
         </java:consequence>
@@ -468,7 +459,7 @@
 		<java:condition>!prev.isPreventionNever("PAP")</java:condition>
 		<java:condition>!prev.isNextDateSet("PAP")</java:condition>
 		<java:condition>!prev.isInelligible("PAP")</java:condition>
-		<java:consequence>              
+		<java:consequence>
               prev.log("PAP 2");
               prev.addWarning("PAP", "PAP is overdue for this patient");
         </java:consequence>
@@ -482,7 +473,7 @@
 		<java:condition>prev.isFemale()</java:condition>
 		<java:condition>prev.getHowManyMonthsSinceLast("PAP") == -1</java:condition>
 		<java:condition>!prev.isInelligible("PAP")</java:condition>
-		<java:consequence>              
+		<java:consequence>
               prev.log("PAP 3");
               prev.addWarning("PAP", "No PAP records can be found for this patient");
         </java:consequence>
@@ -495,7 +486,7 @@
 		<java:condition>prev.isNextDateSet("PAP")</java:condition>
 		<java:condition>prev.isPassedNextDate("PAP")</java:condition>
 		<java:condition>!prev.isInelligible("PAP")</java:condition>
-		<java:consequence>              
+		<java:consequence>
               prev.log("PAP 4");
               prev.addWarning("PAP", "PAP is overdue for this patient");
         </java:consequence>
@@ -509,7 +500,7 @@
 		<java:condition>prev.isFemale()</java:condition>
 		<java:condition>prev.getHowManyMonthsSinceLast("PAP") != -1</java:condition>
 		<java:condition>!prev.isInelligible("PAP")</java:condition>
-		<java:consequence>              
+		<java:consequence>
               prev.log("PAP debug");
               prev.addReminder("Last PAP was done "+prev.getHowManyMonthsSinceLast("PAP")+" month(s) ago");
         </java:consequence>
@@ -527,7 +518,7 @@
 		<java:condition>!prev.isPreventionNever("MAM")</java:condition>
 		<java:condition>!prev.isNextDateSet("MAM")</java:condition>
 		<java:condition>!prev.isInelligible("MAM")</java:condition>
-		<java:consequence>              
+		<java:consequence>
               prev.log("MAM 1");
               prev.addReminder("Mammogram is coming due for this patient");
         </java:consequence>
@@ -543,7 +534,7 @@
 		<java:condition>!prev.isPreventionNever("MAM")</java:condition>
 		<java:condition>!prev.isNextDateSet("MAM")</java:condition>
 		<java:condition>!prev.isInelligible("MAM")</java:condition>
-		<java:consequence>              
+		<java:consequence>
               prev.log("MAM 2");
               prev.addWarning("MAM", "Mammogram is overdue for this patient");
         </java:consequence>
@@ -557,7 +548,7 @@
 		<java:condition>prev.isFemale()</java:condition>
 		<java:condition>prev.getHowManyMonthsSinceLast("MAM") == -1</java:condition>
 		<java:condition>!prev.isInelligible("MAM")</java:condition>
-		<java:consequence>              
+		<java:consequence>
               prev.log("MAM 3");
               prev.addWarning("MAM", "No Mammogram records can be found for this patient");
         </java:consequence>
@@ -570,7 +561,7 @@
 		<java:condition>prev.isNextDateSet("MAM")</java:condition>
 		<java:condition>prev.isPassedNextDate("MAM")</java:condition>
 		<java:condition>!prev.isInelligible("MAM")</java:condition>
-		<java:consequence>              
+		<java:consequence>
               prev.log("MAM 4");
               prev.addWarning("MAM", "MAM is overdue for this patient");
         </java:consequence>
@@ -584,7 +575,7 @@
 		<java:condition>prev.isFemale()</java:condition>
 		<java:condition>prev.getHowManyMonthsSinceLast("MAM") != -1</java:condition>
 		<java:condition>!prev.isInelligible("MAM")</java:condition>
-		<java:consequence>              
+		<java:consequence>
               prev.log("MAM debug");
               prev.addReminder("Last Mammogram was done "+prev.getHowManyMonthsSinceLast("MAM")+" month(s) ago");
         </java:consequence>
@@ -731,8 +722,8 @@
 </rule-set>
 <!--
 
-    <vaccine key="DTaP-IPV">                      the key would match the prevention type stored in the database     
+    <vaccine key="DTaP-IPV">                      the key would match the prevention type stored in the database
     <routine ageBetween="0m-12m"><warning age="2m"  grace="0"/>           warning is probably not the best word  but the idea is that at each element there would be a warning on the top of the screen in the prevention module
-     <warning age="4m"  grace="0"/><warning age="6m"  grace="0"/><warning age="18m"  grace="0"/><warning ageBetween="4y-6y"  grace="2m"/></routine><routine ageBetween="12m-7y" ><warning age="asap" grace="0"/><warning age="+2m" grace="0"/><warning age="+2m"  grace="0"/><warning age="+12m"  grace="0"/><warning age="4y-6y"  grace="2m"/></routine>    
+     <warning age="4m"  grace="0"/><warning age="6m"  grace="0"/><warning age="18m"  grace="0"/><warning ageBetween="4y-6y"  grace="2m"/></routine><routine ageBetween="12m-7y" ><warning age="asap" grace="0"/><warning age="+2m" grace="0"/><warning age="+2m"  grace="0"/><warning age="+12m"  grace="0"/><warning age="4y-6y"  grace="2m"/></routine>
 
 -->

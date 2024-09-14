@@ -110,6 +110,7 @@ public class CanadianVaccineCatalogueManager2 {
 	
 	Map<String,String> dinManufactureMap = new HashMap<String,String>();
 	Map<String,String> dinStatusMap = new HashMap<String,String>();
+	Map<String,String> dinDinMap = new HashMap<String,String>();
 	
 	public void update(LoggedInInfo loggedInInfo) throws IOException {
 		OmdGateway omdGateway = new OmdGateway();
@@ -118,7 +119,7 @@ public class CanadianVaccineCatalogueManager2 {
 		String jsonString = null;
 		
 		try {
-			//bundle= getBundleFromServer();
+			//bundle= getBundleFromServer(); use this instead of the following if the server is HAPI FHIR compliant
 			jsonString = getJsonStringFromServer();
 			bundle = getBundleFromJsonString(jsonString);
 			
@@ -130,9 +131,10 @@ public class CanadianVaccineCatalogueManager2 {
 		
 		String bundleJSON = ctxR4.newJsonParser().setPrettyPrint(true).encodeResourceToString(bundle);
 		omdGateway.logDataReceived(loggedInInfo, "CVC", "DOWNLOAD", "data loaded", null);
-		
+
 		OscarProperties oscarProperties = OscarProperties.getInstance();
 		if(oscarProperties.hasProperty("CVC_BUNDLE_LOCAL_FILE")){
+			// the download eases debugging the parsing that follows aquisition of the bundle
 			try {
 				FileUtils.writeStringToFile(new File(oscarProperties.getProperty("CVC_BUNDLE_LOCAL_FILE")), bundleJSON);
 			}catch(IOException e) {
@@ -142,22 +144,21 @@ public class CanadianVaccineCatalogueManager2 {
 			logger.info("CVC_BUNDLE_LOCAL_FILE property not set. Not writing to file to disk. (not needed) ");
 		}
 		 
-		clearCurrentData();
-		
+		clearCurrentData();		
 		
 		for(Bundle.BundleEntryComponent bec : bundle.getEntry()) {
 			Resource res = bec.getResource();
 			if(res.getResourceType() ==  ResourceType.ValueSet) {
-				if(res.getIdElement().getIdPart().equals("Generic")) {
+				if(res.getIdElement().getIdPart().equals("Generic")) { 
 					updateGenericImmunizations(loggedInInfo,(ValueSet)res);
 				} else if(res.getIdElement().getIdPart().equals("Tradename")) {
 					updateBrandNameImmunizations(loggedInInfo,(ValueSet)res);
-				} else if(res.getIdElement().getIdPart().equals("AnatomicalSite")) {
+				} else if(res.getIdElement().getIdPart().equals("AnatomicalSite")) { //? NA
 					updateAnatomicalSites(loggedInInfo,(ValueSet)res);
 				} else if(res.getIdElement().getIdPart().equals("RouteOfAdmin")) {
 					updateRoutes(loggedInInfo,(ValueSet)res);
 				} else {
-					//Disease, AntigenAntitoxen, AdminGender
+					//Disease, AntigenIgAntitoxin, AdminGender, ForecastStatus, ShelfStatus, HealthcareProviderRoleType
 					logger.debug("value-set " + res.getId());
 				}
 			} else if(res.getResourceType() ==  ResourceType.Bundle) {
@@ -207,6 +208,7 @@ public class CanadianVaccineCatalogueManager2 {
 	}
 
 	private Bundle getBundleFromServer() {
+		// this requires a HAPI fhir compliant server, not just the file format
 		IRestfulClientFactory clientFactory = ctxR4.getRestfulClientFactory();
 		
 		// Disable server fhir validation (don't pull the server's metadata first)
@@ -218,7 +220,7 @@ public class CanadianVaccineCatalogueManager2 {
 		logger.debug("serverBase=" + CanadianVaccineCatalogueManager2.getCVCURL());	
 
 		// acceptable Accept headers are "application/json+fhir" and "application/json"
-		// acceptable x-app-desc headers are "PHAC NVC Client" or "Local EMR Client".
+
 		String Accept = OscarProperties.getInstance().getProperty("NVC_ACCEPT","application/json+fhir");
 		String xAppDesc = OscarProperties.getInstance().getProperty("NVC_X_APP","OSCAREMR");
 		String relUrl = OscarProperties.getInstance().getProperty("NVC_BUNDLE","/Bundle/NVC");		
@@ -259,24 +261,19 @@ public class CanadianVaccineCatalogueManager2 {
 		String serverBase = CanadianVaccineCatalogueManager2.getCVCURL();
 		logger.debug("serverBase=" + CanadianVaccineCatalogueManager2.getCVCURL());
 		// acceptable Accept headers are "application/json+fhir" and "application/json"
-		// acceptable x-app-desc headers are "PHAC NVC Client" or "Local EMR Client".
+
 		String Accept = OscarProperties.getInstance().getProperty("NVC_ACCEPT","application/json+fhir");
 		String xAppDesc = OscarProperties.getInstance().getProperty("NVC_X_APP","OSCAREMR");
 		String relUrl = OscarProperties.getInstance().getProperty("NVC_BUNDLE","/Bundle/NVC");		
-		logger.debug("Full Url=" + CanadianVaccineCatalogueManager2.getCVCURL()+relUrl);
+		logger.debug("Full Url=" + serverBase+relUrl);
 		
         try {
-
             HttpGet request = new HttpGet(serverBase+relUrl);
-
             // add request headers
             request.addHeader("Accept", Accept);
             request.addHeader("x-app-desc", xAppDesc);
-
             CloseableHttpResponse response = httpClient.execute(request);
-
             try {
-
                 // Get HttpResponse Status
                 logger.debug(response.getProtocolVersion());              // HTTP/1.1
                 logger.debug(response.getStatusLine().getStatusCode());   // 200
@@ -287,9 +284,10 @@ public class CanadianVaccineCatalogueManager2 {
                 if (entity != null) {
                     // return it as a String
                     result = EntityUtils.toString(entity);
-                    logger.debug(result);
+                    if (result.length()>300) {
+						logger.debug(result.substring(0,70)+"... ");
+                    }
                 }
-
             } finally {
                 response.close();
             }
@@ -314,7 +312,8 @@ public class CanadianVaccineCatalogueManager2 {
 
 				imm.setSnomedConceptId(cc.getCode());
 				imm.setVersionId(0);
-				logger.info("Loading names for concept "+cc.getCode());
+				logger.info("Loading names for generic concept "+cc.getCode());
+				String pickListTerm = null;
 				
 				for(ConceptReferenceDesignationComponent cr : cc.getDesignation()) {
 					Coding use = cr.getUse();
@@ -325,13 +324,23 @@ public class CanadianVaccineCatalogueManager2 {
 						name.setUseCode(use.getCode());
 						name.setUseDisplay(use.getDisplay());
 						logger.debug(cc.getCode()+" display name "+use.getDisplay()+" cc display "+cc.getDisplay());
+						if(use.getCode().equals("enAbbreviation")) { pickListTerm=cr.getValue(); }
 					}else {
 						logger.error("USE WAS NULL for "+cr.getValue() +" "+c.toString());
 					}
 					name.setValue(cr.getValue());
 					imm.getNames().add(name);
 				}
-				
+				if (pickListTerm != null) {
+					// make up a picklist term for the generic concept
+					CVCImmunizationName name2 = new CVCImmunizationName();
+					name2.setLanguage("en");
+					name2.setUseSystem("https://api.cvc.canimmunize.ca/v3/NamingSystem/ca-cvc-display-terms-designation");
+					name2.setUseCode("enClinicianPicklistTerm");
+					name2.setUseDisplay("Clinician Tradename Picklist (en)");
+					name2.setValue(pickListTerm);
+					imm.getNames().add(name2);
+				}
 				for (Extension ext : cc.getExtension()) {
 					// https://nvc-cnv.canada.ca/v1
 					if ((getCVCURL() + "/StructureDefinition/nvc-product-status").equals(ext.getUrl())) {
@@ -406,8 +415,11 @@ public class CanadianVaccineCatalogueManager2 {
 				imm.setSnomedConceptId(cc.getCode());
 				imm.setVersionId(0);
 				logger.info("Loading names for brand concept "+cc.getCode());
+				String enAbbreviation = null;
+				String fullName = null;
 				
 				for(ConceptReferenceDesignationComponent cr : cc.getDesignation()) {
+					// Fully Specified Name, Synonym, enAbbreviation, frAbbreviation
 					Coding use = cr.getUse();
 					CVCImmunizationName name = new CVCImmunizationName();
 					name.setLanguage(cr.getLanguage());
@@ -415,32 +427,138 @@ public class CanadianVaccineCatalogueManager2 {
 						name.setUseSystem(use.getSystem());
 						name.setUseCode(use.getCode());
 						name.setUseDisplay(use.getDisplay());
-						logger.debug(cc.getCode()+" display name "+use.getDisplay()+" cc display "+cc.getDisplay());
-					}else {
+						logger.debug("Code:"+cc.getCode()+" display name:"+use.getDisplay()+" cc display:"+cc.getDisplay());
+						if(use.getCode().equals("enAbbreviation")) { enAbbreviation=cr.getValue(); }
+						if(use.getCode().equals("900000000000003001")) { fullName=cr.getValue(); }
+					} else {
 						logger.error("USE WAS NULL for "+cr.getValue() +" "+c.toString());
 					}
 					name.setValue(cr.getValue());
 					imm.getNames().add(name);
 				}
-				
+				if (enAbbreviation != null && fullName != null) {
+					// make up a picklist term for the brand concept
+					CVCImmunizationName name2 = new CVCImmunizationName();
+					name2.setLanguage("en");
+					name2.setUseSystem("https://api.cvc.canimmunize.ca/v3/NamingSystem/ca-cvc-display-terms-designation");
+					name2.setUseCode("enClinicianPicklistTerm");
+					name2.setUseDisplay("Clinician Tradename Picklist (en)");
+					String arr[] = fullName.split(" ");
+					name2.setValue(arr[0]+" ("+enAbbreviation+")");
+					imm.getNames().add(name2);
+				}
 				String din = null;
+				String dinDisplay = null;
 				String manufactureDisplay = null;
 				String routeDisplay = null;
 				String routeCode = null;				
-				String shelfStatus = null;
 				String typicalDose = null;
 				String typicalDoseUofM = null;
 				String strength = null;
+				
+				String shelfStatus = null;
+				String parentConcept = null;
 
 				for (Extension ext : cc.getExtension()) {
 					/*
-					if ("https://api.cvc.canimmunize.ca/extensions/prevalence".equals(ext.getUrl())) {
-						Integer prevalence = (Integer) ext.getValueAsPrimitive().getValue();
-						imm.setPrevalence(prevalence);
-					}
-					*/
+					nvc-concept-status-extension
+					nvc-concept-last-updated
+					nvc-passive-immunizing-agent
+					nvc-parent-concept
+					nvc-contains-antigens ... sub extentions nvc-contains-antigen
+					nvc-protects-against-diseases ... sub extensions nvc-protects-against-disease
 					
-					if ((getCVCURL() + "/StructureDefinition/nvc-product-status").equals(ext.getUrl())) {
+					*/
+					if ((getCVCURL() + "/StructureDefinition/nvc-product-statuses").equals(ext.getUrl())) {
+						for(Extension statusExt : ext.getExtension()) {
+							if ((getCVCURL() + "/StructureDefinition/nvc-product-status").equals(statusExt.getUrl())) {
+								CodeableConcept shelfStatusConcept = (CodeableConcept)statusExt.getValue();
+								for(Coding codingShelfStatus :shelfStatusConcept.getCoding()) {  
+									if ((getCVCURL() + "/ValueSet/ShelfStatus").equals(codingShelfStatus.getSystem())) {
+										shelfStatus = codingShelfStatus.getDisplay(); //Marketed
+										imm.setShelfStatus(shelfStatus);
+									}									
+								}
+							}
+						}					
+					}
+					
+					if ((getCVCURL() + "/StructureDefinition/nvc-parent-concept").equals(ext.getUrl())) {
+						CodeableConcept parentConceptC = (CodeableConcept)ext.getValue();
+						for(Coding parentConceptCode :parentConceptC.getCoding()) {
+							if((getCVCURL() + "/ValueSet/Generic").equals(parentConceptCode.getSystem())) {
+								parentConcept = parentConceptCode.getCode(); 
+								imm.setParentConceptId(parentConcept);
+							}
+						}
+					}
+					
+					if((getCVCURL() + "/StructureDefinition/nvc-market-authorization-holders").equals(ext.getUrl())) {
+						for(Extension marketExt : ext.getExtension()) {
+							if ((getCVCURL() + "/StructureDefinition/nvc-market-authorization-holder").equals(marketExt.getUrl())) {
+								manufactureDisplay = marketExt.getValue().primitiveValue();  // for loading into CVCMedication table
+							}
+						}
+					}
+					
+					if ((getCVCURL() + "/StructureDefinition/nvc-typical-dose-sizes").equals(ext.getUrl())) {
+						for(Extension typicalExt : ext.getExtension()) {
+							if ((getCVCURL() + "/StructureDefinition/nvc-typical-dose-size").equals(typicalExt.getUrl())) {
+								typicalDose = typicalExt.getValue().primitiveValue(); 
+								imm.setTypicalDose(typicalDose); // 0.5
+							}
+						}
+					}
+					
+					if ((getCVCURL() + "/StructureDefinition/nvc-typical-dose-sizes-uom").equals(ext.getUrl())) {
+						for(Extension uomExt : ext.getExtension()) {
+							if ((getCVCURL() + "/StructureDefinition/nvc-typical-dose-size-uom").equals(uomExt.getUrl())) {
+								typicalDoseUofM = uomExt.getValue().primitiveValue(); 
+								imm.setTypicalDoseUofM(typicalDoseUofM); // ML
+							}
+						}
+					}
+								
+					if ((getCVCURL() + "/StructureDefinition/nvc-strengths").equals(ext.getUrl())) {
+						for(Extension strExt : ext.getExtension()) {
+							if ((getCVCURL() + "/StructureDefinition/nvc-strength").equals(strExt.getUrl())) {
+								strength = strExt.getValue().primitiveValue(); 
+								imm.setStrength(strength); // see product monograph
+							}
+						}
+					}
+					
+					if ((getCVCURL() + "/StructureDefinition/nvc-route-of-admins").equals(ext.getUrl())) {
+						for(Extension routeExt : ext.getExtension()) {
+							if ((getCVCURL() + "/StructureDefinition/nvc-route-of-admin").equals(routeExt.getUrl())) {
+								CodeableConcept routeConcept = (CodeableConcept)routeExt.getValue();
+								for(Coding routeConceptCode :routeConcept.getCoding()) {
+									if((getCVCURL() + "/ValueSet/RouteOfAdmin").equals(routeConceptCode.getSystem())) {
+										routeCode = routeConceptCode.getCode(); 
+										routeDisplay = routeConceptCode.getDisplay(); 
+										imm.setRoute(routeCode);
+									}
+								}
+							}
+						}
+					}	
+					
+					if ((getCVCURL() + "/StructureDefinition/nvc-dins").equals(ext.getUrl())) {
+						for(Extension dinExt : ext.getExtension()) {
+							if ((getCVCURL() + "/StructureDefinition/nvc-din").equals(dinExt.getUrl())) {
+								CodeableConcept dinConcept = (CodeableConcept)dinExt.getValue();
+								for(Coding dinConceptCode :dinConcept.getCoding()) {
+									if(("http://hl7.org/fhir/NamingSystem/ca-hc-din").equals(dinConceptCode.getSystem())) {
+										din = dinConceptCode.getCode(); 
+										dinDisplay = dinConceptCode.getDisplay(); 
+									}
+								}
+							}
+						}
+					}
+					
+					/*
+					if ((getCVCURL() + "/StructureDefinition/nvc-concept-status-extension").equals(ext.getUrl())) {
 						CodeableConcept shelfStatusConcept = (CodeableConcept)ext.getValue();
 						//active or inactive
 						//String status = ext.getValueAsPrimitive().getValueAsString();
@@ -451,78 +569,30 @@ public class CanadianVaccineCatalogueManager2 {
 							}
 						}
 					}
-					
-					
-					if ((getCVCURL() + "/StructureDefinition/nvc-concept-last-updated").equals(ext.getUrl())) {
-						
-					}
-					
-					//if ((getCVCURL() + "/StructureDefinition/nvc-ontario-ispa-vaccine".equals(ext.getUrl())) {
-					//	Boolean ispa = (Boolean)ext.getValueAsPrimitive().getValue();
-					//	imm.setIspa(ispa);	
-					//}										
-					
-					if ((getCVCURL() + "/StructureDefinition/nvc-parent-concept").equals(ext.getUrl())) {
-						CodeableConcept parentConcept = (CodeableConcept)ext.getValue();
-						for(Coding parentConceptCode :parentConcept.getCoding()) {
-							if((getCVCURL() + "/ValueSet/Generic").equals(parentConceptCode.getSystem())) {
-								imm.setParentConceptId(parentConceptCode.getCode());
-							}
-						}
-						//String parent = ext.getValue().toString();
-						//imm.setParentConceptId(parent);
-					}
+									
+
 					if ((getCVCURL() + "/StructureDefinition/nvc-din").equals(ext.getUrl())) {
 						CodeableConcept dinConcept = (CodeableConcept)ext.getValue();
 						if(dinConcept.hasCoding()) {
 							din = dinConcept.getCoding().get(0).getDisplay();
 						}
 					}
-					if((getCVCURL() + "/StructureDefinition/nvc-market-authorization-holder").equals(ext.getUrl())) {
-						manufactureDisplay = ext.getValue().primitiveValue();
-					}
+					*/
 					
-					if ((getCVCURL() + "/StructureDefinition/nvc-typical-dose-size").equals(ext.getUrl())) {
-						typicalDose = ext.getValueAsPrimitive().getValueAsString();
-						imm.setTypicalDose(typicalDose);
-					}
-					
-					if ((getCVCURL() + "/StructureDefinition/nvc-typical-dose-size-uom").equals(ext.getUrl())) {
-						typicalDoseUofM = ext.getValueAsPrimitive().getValueAsString();
-						imm.setTypicalDoseUofM(typicalDoseUofM);
-					}
-					if ((getCVCURL() + "/StructureDefinition/nvc-strength").equals(ext.getUrl())) {
-						strength = ext.getValueAsPrimitive().getValueAsString();
-						imm.setStrength(strength);
-					}
-					
-					if ((getCVCURL() + "/StructureDefinition/nvc-passive-immunizing-agent").equals(ext.getUrl())) {
-						Boolean passiveImmAgent = (Boolean)ext.getValueAsPrimitive().getValue();
-						
-					}
-					
-					if ((getCVCURL() + "/StructureDefinition/nvc-contains-antigen").equals(ext.getUrl())) {
-						//more structure
-					}
-					
-					if ((getCVCURL() + "/StructureDefinition/nvc-protects-against-disease").equals(ext.getUrl())) {
-						//more structure
-					}
-					if ((getCVCURL() + "/StructureDefinition/nvc-route-of-admin").equals(ext.getUrl())) {
-						CodeableConcept routeConcept = (CodeableConcept)ext.getValue();
-						for(Coding routeConceptCode :routeConcept.getCoding()) {
-							if((getCVCURL() + "/ValueSet/RouteOfAdmin").equals(routeConceptCode.getSystem())) {
-								imm.setRoute(routeConceptCode.getCode());
-							}
-						}					
-					}					
+										
 				}
 				
 				if(imm.getSnomedConceptId() != null && manufactureDisplay != null) {
 					dinManufactureMap.put(imm.getSnomedConceptId(),manufactureDisplay);
 				}
+				if(imm.getSnomedConceptId() != null && din != null) {
+					if (dinDisplay == null ) { dinDisplay = din; }
+					dinDinMap.put(imm.getSnomedConceptId(),din);
+				}
+				
+				
 				imm.setGeneric(false);
-				logger.debug("din:"+din+" By:"+manufactureDisplay+" Strength:"+strength+" Typical Dose:"+typicalDose+" "+typicalDoseUofM+" route:"+routeDisplay+"/"+routeCode);
+				logger.debug("din:"+din+" By:"+manufactureDisplay+" Strength:"+strength+" Typical Dose:"+typicalDose+" "+typicalDoseUofM+" route:"+routeDisplay+"/"+routeCode+" Status:"+shelfStatus);
 				
 				saveImmunization(loggedInInfo, imm);
 			}
@@ -551,26 +621,37 @@ public class CanadianVaccineCatalogueManager2 {
 
 			Medication med = (Medication) entry.getResource();
 			
-			logger.debug("processing " + med.getIdBase() +" : "+med.getIdElement().getIdPart());
+			logger.debug("processing " + med.getIdBase() +" : "+med.getIdElement().getIdPart()); //processing Medication/19291000087108/_history/1.24 : 19291000087108
 			if(dinManufactureMap.containsKey(med.getIdElement().getIdPart())) {
 				cMed.setManufacturerDisplay(dinManufactureMap.get(med.getIdElement().getIdPart()));
+				logger.debug("...adding :"+dinManufactureMap.get(med.getIdElement().getIdPart())+" for "+med.getIdElement().getIdPart());
+			}
+			if(dinDinMap.containsKey(med.getIdElement().getIdPart())) {
+				cMed.setDin(dinDinMap.get(med.getIdElement().getIdPart()));
+				cMed.setDinDisplayName(dinDinMap.get(med.getIdElement().getIdPart()));
+				logger.debug("...adding din:"+dinDinMap.get(med.getIdElement().getIdPart())+" for "+med.getIdElement().getIdPart());
 			}
 		//	cMed.setBrand(med.getIsBrand());
 			cMed.setStatus(med.getStatus().toString());
 
 			for (Coding c : med.getCode().getCoding()) {
+			/*
 				if ("http://hl7.org/fhir/sid/ca-hc-din".equals(c.getSystem())) {
 					cMed.setDin(c.getCode());
 					cMed.setDinDisplayName(c.getDisplay());
 					
 				}
+			*/
 				if ("http://snomed.info/sct".equals(c.getSystem())) { 
 					cMed.setSnomedCode(c.getCode());
 					cMed.setSnomedDisplay(c.getDisplay());
+					logger.debug("...adding snomed code / display:"+c.getCode()+"/"+c.getDisplay());
 				}
+				/*
 				if ("http://www.gs1.org/gtin".equals(c.getSystem())) { // not a thing
 					cMed.getGtinList().add(new CVCMedicationGTIN(cMed, c.getCode()));
 				}
+				*/
 			}
 			
 			
