@@ -146,6 +146,7 @@ public class CVCTesterAction extends DispatchAction {
 			CVCImmunization imm = cvcManager.getBrandNameImmunizationBySnomedCode(LoggedInInfo.getLoggedInInfoFromSession(request), snomedConceptId);
 			if(imm != null) {
 				JSONObject t = new JSONObject();
+				t.put("displayName",imm.getDisplayName());
 				t.put("dose",imm.getTypicalDose());
 				t.put("UoM",imm.getTypicalDoseUofM());
 				t.put("route",imm.getRoute());
