@@ -314,6 +314,7 @@ public class CanadianVaccineCatalogueManager2 {
 				imm.setVersionId(0);
 				logger.info("Loading names for generic concept "+cc.getCode());
 				String pickListTerm = null;
+				String useDisplay = null;
 				
 				for(ConceptReferenceDesignationComponent cr : cc.getDesignation()) {
 					Coding use = cr.getUse();
@@ -322,13 +323,18 @@ public class CanadianVaccineCatalogueManager2 {
 					if(use  != null) {
 						name.setUseSystem(use.getSystem());
 						name.setUseCode(use.getCode());
+						useDisplay=use.getDisplay();
 						name.setUseDisplay(use.getDisplay());
 						logger.debug(cc.getCode()+" display name "+use.getDisplay()+" cc display "+cc.getDisplay());
 						if(use.getCode().equals("enAbbreviation")) { pickListTerm=cr.getValue(); }
 					}else {
 						logger.error("USE WAS NULL for "+cr.getValue() +" "+c.toString());
 					}
-					name.setValue(cr.getValue());
+					if (useDisplay.equals("Fully Specified Name")){
+						name.setValue(cr.getValue()+" (generic)");
+					} else {
+						name.setValue(cr.getValue());
+					}
 					imm.getNames().add(name);
 				}
 				if (pickListTerm != null) {
