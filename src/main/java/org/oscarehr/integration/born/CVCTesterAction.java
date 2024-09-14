@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-//import java.util.Collections;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -202,7 +202,7 @@ public class CVCTesterAction extends DispatchAction {
 
 		//sort it prevalence not available in NVC
 		//Collections.sort(uniqueResults, new PrevalenceComparator());
-				
+		Collections.sort(uniqueResults, new NameComparator());		
 		
 		
 		for(CVCImmunization result:uniqueResults) {
@@ -239,5 +239,21 @@ class PrevalenceComparator implements Comparator<CVCImmunization> {
                     return 0;
             else
                     return d1.compareTo(d2) * -1;
+    }
+}
+
+class NameComparator implements Comparator<CVCImmunization> {
+    public int compare( CVCImmunization i1, CVCImmunization i2 ) {
+            String s1 = i1.getPicklistName();
+            String s2 = i2.getPicklistName();
+            
+            if( s1 == null && s2 != null )
+                    return 1;
+            else if( s1 != null && s2 == null )
+                    return -1;
+            else if( s1 == null && s2 == null )
+                    return 0;
+            else
+                    return s1.compareTo(s2) * -1;
     }
 }
