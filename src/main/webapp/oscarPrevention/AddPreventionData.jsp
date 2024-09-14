@@ -23,7 +23,7 @@
     Ontario, Canada
 
 --%>
-
+<!DOCTYPE html>
 <%@page import="org.oscarehr.common.model.LookupListItem"%>
 <%@page import="org.oscarehr.common.model.LookupList"%>
 <%@page import="org.oscarehr.common.dao.LookupListDao"%>
@@ -265,34 +265,26 @@ if(!authed) {
 <title>
 <bean:message key="oscarprevention.index.oscarpreventiontitre" />
 </title><!--I18n-->
-<link rel="stylesheet" type="text/css" href="../share/css/OscarStandardLayout.css">
+<script src="<%=request.getContextPath() %>/library/jquery/jquery-3.6.4.min.js"></script>
+<script src="../share/calendar/calendar.js" ></script>
+<script src="../share/calendar/lang/<bean:message key="global.javascript.calendar"/>" ></script>
+<script src="../share/calendar/calendar-setup.js" ></script>
+
+<!-- <link rel="stylesheet" type="text/css" href="../share/css/OscarStandardLayout.css"> -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- css -->
+
+<link href="<%=request.getContextPath()%>/css/bootstrap.css" rel="stylesheet" > <!-- Bootstrap 2.3.1 -->
+
+<link href="<%=request.getContextPath()%>/css/bootstrap-responsive.css" rel="stylesheet" >
+
+
 <link rel="stylesheet" type="text/css" media="all" href="../share/calendar/calendar.css" title="win2k-cold-1" />
 
-<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-1.12.3.js"></script>
-        <script src="<%=request.getContextPath() %>/library/jquery/jquery-migrate-1.4.1.js"></script>
-<script type="text/javascript" src="../share/calendar/calendar.js" ></script>
-<script type="text/javascript" src="../share/calendar/lang/<bean:message key="global.javascript.calendar"/>" ></script>
-<script type="text/javascript" src="../share/calendar/calendar-setup.js" ></script>
-
-<style type="text/css">
-  div.ImmSet { background-color: #ffffff; }
-  div.ImmSet h2 {  }
-  div.ImmSet ul {  }
-  div.ImmSet li {  }
-  div.ImmSet li a { text-decoration:none; color:blue;}
-  div.ImmSet li a:hover { text-decoration:none; color:red; }
-  div.ImmSet li a:visited { text-decoration:none; color:blue;}
 
 
-  ////////
-  div.prevention {  background-color: #999999; }
-  div.prevention fieldset {width:35em; font-weight:bold; }
-  div.prevention legend {font-weight:bold; }
 
-  ////////
-</style>
-
-<SCRIPT LANGUAGE="JavaScript">
+<script>
 
 var isCvc = <%=isCvc%>;
 
@@ -323,16 +315,16 @@ function showHideNextDate(id,nextDate,nexerWarn){
 }
 
 function disableifchecked(ele,nextDate){
-    if(ele.checked == true){
-       document.getElementById(nextDate).disabled = true;
+    if($('#'+ele).is(':checked')){
+       $('#'+nextDate).attr("disabled", "disabled");
     }else{
-       document.getElementById(nextDate).disabled = false;
+       $('#'+nextDate).removeAttr("disabled");
     }
 }
 
-</SCRIPT>
+</script>
 
-<style type="text/css">
+<style>
 	table.outline{
 	   margin-top:50px;
 	   border-bottom: 1pt solid #888888;
@@ -385,33 +377,18 @@ font-weight:bold;
 
 }
 
-input, textarea,select{
-
-//margin-bottom: 5px;
-}
-
-textarea{
-width: 450px;
-height: 100px;
-}
-
 
 .boxes{
 width: 1em;
 }
 
-#submitbutton{
-margin-left: 120px;
-margin-top: 5px;
-width: 90px;
-}
 
 br{
 clear: left;
 }
 </style>
 
-<script type="text/javascript">
+<script>
   function hideExtraName(ele){
    //alert(ele);
     if (ele.options[ele.selectedIndex].value != -1){
@@ -427,7 +404,7 @@ clear: left;
   }
 </script>
 
-<script type="text/javascript">
+<script>
   function updateLotNr(elem){
 	if (elem != null && elem.options[elem.selectedIndex].value != -1)
 	{
@@ -442,8 +419,9 @@ clear: left;
    }
   }
   </script>
-  <script type="text/javascript">
+  <script>
   function hideLotDrop(elem){
+        if(elem == null){ return; }
 	  var bFound = 0;
 	  var LotNr = document.getElementById('lot').value;
 	  var summary =  document.getElementById('summary');
@@ -545,11 +523,13 @@ function GetSortOrder(prop) {
 function changeCVCName() {
 	lots = null;
 	$("#typicalDose").html("");
-
+    $("#displayName").text("");
 	 var snomedId = $("#cvcName").val();
 	 if(snomedId == "-1") {
 		 $("#lot").show();
 		 $("#cvcLot").hide();
+		 $("#lotLabel").hide();
+		 //$("#lot").show();
 		 $("#expiryDate").val('');
 		 $("#unknownName").show();
 	 } else if(snomedId == "0") {
@@ -566,6 +546,7 @@ function changeCVCName() {
             	 if(data != null && data.lots != null && data.lots instanceof Array && data.lots.length > 0) {
             		 //$("#lot").hide();
             		 $("#cvcLot").show();
+            		 $("#lotLabel").show();
             		 $("#cvcLot").find("option").remove().end();
 
             		 $("#cvcLot").append('<option value=""></option>');
@@ -582,15 +563,15 @@ function changeCVCName() {
 
 
             			if(startup2 && escapeHtml(item.lotNumber) == '<%=addByLotNbr %>') {
-            				$("#cvcLot").append('<option selected="selected" value="'+item.lotNumber+'" expiryDate="'+output+'">'+item.lotNumber+'</option>');
+            				$("#cvcLot").append('<option selected="selected" value="'+item.lotNumber+'" data-expiryDate="'+output+'">'+item.lotNumber+'</option>');
             				startup2=false;
                             updateCvcLot();
             			} else if(startup && escapeHtml(item.lotNumber) == '<%=(existingPrevention != null)?existingPrevention.get("lot"):"" %>') {
-            				$("#cvcLot").append('<option selected="selected" value="'+escapeHtml(item.lotNumber)+'" expiryDate="'+output+'">'+escapeHtml(item.lotNumber)+'</option>');
+            				$("#cvcLot").append('<option selected="selected" value="'+escapeHtml(item.lotNumber)+'" data-expiryDate="'+output+'">'+escapeHtml(item.lotNumber)+'</option>');
                             $("#lot").val(escapeHtml(item.lotNumber));
             				startup=false;
             			} else {
-            				$("#cvcLot").append('<option value="'+escapeHtml(item.lotNumber)+'" expiryDate="'+output+'">'+escapeHtml(item.lotNumber)+'</option>');
+            				$("#cvcLot").append('<option value="'+escapeHtml(item.lotNumber)+'" data-expiryDate="'+output+'">'+escapeHtml(item.lotNumber)+'</option>');
             			}
             			//updateCvcLot();
             		 }
@@ -603,10 +584,13 @@ function changeCVCName() {
             	 }
 
             	 if(data != null && data.typicalDose != null) {
+            		 var displayName = data.typicalDose.displayName;
             		 var dose = data.typicalDose.dose;
             		 var doseUnit = data.typicalDose.UoM;
                      var doseRoute = data.typicalDose.route;
                      var routeText = "";
+            		 $("#cvcName").prop('title',displayName);
+            		 $("#displayName").text(displayName);
             		 if(doseRoute != null ) {
             		 	$("#route").val(doseRoute).change();
                         var routeArray = $("#route option:selected").text().split(":");
@@ -653,7 +637,7 @@ function changeCVCName() {
 
 function updateCvcLot() {
 	var lotNumber = $("#cvcLot").find(":selected");
-	$("#expiryDate").val(lotNumber.attr('expiryDate'));
+	$("#expiryDate").val(lotNumber.attr('data-expiryDate'));
     $("#lot").val($("#cvcLot").val());
 }
 
@@ -692,12 +676,13 @@ function changeSite(el) {
 </script>
 </head>
 
-<body class="BodyStyle" vlink="#0000FF" onload="disableifchecked(document.getElementById('neverWarn'),'nextDate');">
-<!--  -->
-    <table  class="MainTable" id="scrollNumber1" name="encounterTable">
+<body class="BodyStyle" onload="disableifchecked('neverWarn','nextDate');">
+
+<div class ="span12">
+    <table  class="MainTable" id="scrollNumber1">
         <tr class="MainTableTopRow">
-            <td class="MainTableTopRowLeftColumn" width="100" >
-               <bean:message key="oscarprevention.index.oscarpreventiontitre" />
+            <td class="MainTableTopRowLeftColumn" style="width:150px;" >
+               <h3>&nbsp;<bean:message key="oscarprevention.index.oscarpreventiontitre" /></h3>
             </td>
             <td class="MainTableTopRowRightColumn">
                 <table class="TopStatusBar">
@@ -715,11 +700,9 @@ function changeSite(el) {
                 </table>
             </td>
         </tr>
-        <tr>
-            <td class="MainTableLeftColumn" valign="top">
-
-
-               &nbsp;
+    </table>
+<div class="container-fluid well" >
+    <div class ="span8">
 <!--
                <%
                  org.oscarehr.common.model.DemographicExt ineligx = demographicExtDao.getDemographicExt(Integer.parseInt(demographic_no),prevention+"Inelig");
@@ -735,8 +718,7 @@ function changeSite(el) {
                     <a href="setPatientIneligible.jsp?prev=<%=prevention%>&demo=<%=demographic_no%>">Set Patient Ineligible</a>
                  <%}%>
 -->
-            </td>
-            <td valign="top" class="MainTableRightColumn">
+
 <%
 			if(dhirEnabled && session.getAttribute("oneIdEmail") == null) {
 		%>
@@ -772,10 +754,10 @@ function changeSite(el) {
                <input type="hidden" name="id" value="<%=id%>"/>
                <input type="hidden" name="layoutType" value="<%=layoutType%>"/>
 
-	       <div class="prevention">
+	       <div class="prevention span8">
 		   <fieldset>
 		       <legend>Summary</legend>
-		       <textarea name="summary" readonly><%=summary%></textarea>
+		       <textarea name="summary" class="span8" readonly style="height:240px;" ><%=summary%></textarea>
 <%if (hasImportExtra) { %>
 				<a href="javascript:void(0);" title="Extra data from Import" onclick="window.open('../annotation/importExtra.jsp?display=<%=annotation_display %>&amp;table_id=<%=id %>&amp;demo=<%=demographic_no %>','anwin','width=400,height=250');">
 				 <img src="../images/notes.gif" align="right" alt="Extra data from Import" height="16" width="13" border="0"> </a>
@@ -784,7 +766,7 @@ function changeSite(el) {
 	       </div>
                <% } %>
                <%if (layoutType.equals("injection")) {%>
-               <div class="prevention">
+               <div class="prevention span8">
                    <fieldset>
                       <legend>Prevention : <%=prevention%></legend>
                          <div>
@@ -795,7 +777,7 @@ function changeSite(el) {
                          </div>
                          <div>&nbsp;</div>
                          <div style="margin-left:30px;">
-                            <label for="prevDate" class="fields" >Date:</label>    <input type="text" name="prevDate" id="prevDate" value="<%=prevDate%>" size="15" > <a id="date"><img title="Calendar" src="../images/cal.gif" alt="Calendar" border="0" /></a> <br>
+                            <label for="prevDate" class="fields" >Date:</label>    <span class="input-append"><input type="text" name="prevDate" id="prevDate" value="<%=prevDate%>" style="width:167px;"> <a id="date"><img title="Calendar" class="add-on" src="../images/cal.gif" alt="Calendar" ></a></span><br>
                             <label for="provider" class="fields">Provider:</label> <input type="text" name="providerName" id="providerName" value="<%=providerName%>"/>
                                   <select onchange="javascript:hideExtraName(this);" id="providerDrop" name="provider">
                                       <% for (int i=0; i < providers.size(); i++) { %>
@@ -812,7 +794,13 @@ function changeSite(el) {
                              <label for="creator" class="fields" >Creator:</label> <input type="text" name="creator" value="<%=creatorName%>" readonly/> <br/>
                          </div>
                    </fieldset>
+
                    <fieldset >
+                      <legend >Details</legend>
+                            <span id="displayName" style="font-weight:lighter; font-size:12px;"></span><br>
+                    </fieldset>
+
+                   <fieldset>
                       <legend >Result</legend>
 
              			 <%if(snomedId != null) {
@@ -853,7 +841,8 @@ function changeSite(el) {
    	             						   	     %><script>changeCVCName();</script><%
                                         }
                                 %>
-   	             			 <br/>
+
+
    	             				 <span id="unknownName" style="display:block"><label for="name">Name</label> <input type="text" id="name" name="name" value="<%=str((extraData.get("name")),"")%>"/> <br/><br/></span>
              		<%
              				} else {
@@ -865,7 +854,7 @@ function changeSite(el) {
 
              			<% } %>
 
-
+                        <br>
 
              			 <label for="location">Location:</label>
 
@@ -995,23 +984,23 @@ function changeSite(el) {
                          </select><br/>
                          <%} else { %>
                          <div id="cvcLotDiv">
-                         <label for="cvcLot">Lot:</label>
+                         <label for="cvcLot" id="lotLabel" style="display:none;">Lot Select:</label>
+                          <select onchange="updateCvcLot();" id="cvcLot" name="cvcLot" style="display:none;"></select>
+                         </div>
+                         <label for="lot">Lot:</label>
                           <input type="text" name="lot" id="lot" value="<%=str(lot,"")%>" style="display:block" />
 
-                         <select onchange="javascript:updateCvcLot();" id="cvcLot" name="cvcLot" style="display:none;">
-
-                         </select></div>
                          <label for="expiryDate">Expiry Date:</label> <input type="text" name="expiryDate" id="expiryDate"  value="<%=str((extraData.get("expiryDate")),"")%>"/><br/>
                          <% } %>
                          <label for="manufacture">Manufacture:</label> <input type="text" name="manufacture" id="manufacture"  value="<%=str((extraData.get("manufacture")),"")%>"/><br/>
                          <% if(generic != null){ %>
-                         <label for="shelfStatus">Status:</label> <span name="shelfStatus" id="shelfStatus"  ></span><%=generic.getShelfStatus() %><br/> <%--str((extraData.get("status")),"")--%>
+                         <label for="shelfStatus">Status:</label> <span name="shelfStatus" id="shelfStatus"  ></span><%=(generic.getShelfStatus()==null?"n/a":generic.getShelfStatus()) %><br/> <%--str((extraData.get("status")),"")--%>
                          <% } %>
 
                    </fieldset>
                    <fieldset >
                       <legend >Comments</legend>
-                      <textarea name="comments" ><%=str((extraData.get("comments")),"")%></textarea>
+                      <textarea class="span8" name="comments" ><%=str((extraData.get("comments")),"")%></textarea>
                    </fieldset>
                </div>
                <script type="text/javascript">
@@ -1021,7 +1010,7 @@ function changeSite(el) {
                hideLotDrop(document.getElementById('lotDrop'));
                </script>
                <%} else if(layoutType.equals("h1n1")) {%>
-               <div class="prevention">
+               <div class="prevention span8">
                    <fieldset>
                       <legend>Prevention : <%=prevention%></legend>
                          <div>
@@ -1032,7 +1021,7 @@ function changeSite(el) {
                          </div>
                          <div>&nbsp;</div>
                          <div style="margin-left:30px;">
-                            <label for="prevDate" class="fields" >Date:</label>    <input type="text" name="prevDate" id="prevDate" value="<%=prevDate%>" size="9" > <a id="date"><img title="Calendar" src="../images/cal.gif" alt="Calendar" border="0" /></a> <br>
+                            <label for="prevDate" class="fields" >Date:</label><span class="input-append"><input type="text" name="prevDate" id="prevDate" value="<%=prevDate%>" style="width:167px;"> <a id="date"><img title="Calendar" class="add-on" src="../images/cal.gif" alt="Calendar" ></a></span><br>
                             <label for="provider" class="fields">Provider:</label> <input type="text" name="providerName" id="providerName" value="<%=providerName%>"/>
                                   <select onchange="javascript:hideExtraName(this);" id="providerDrop" name="provider">
                                       <%for (int i=0; i < providers.size(); i++) { %>
@@ -1114,14 +1103,14 @@ function changeSite(el) {
                    </fieldset>
                    <fieldset >
                       <legend >Comments</legend>
-                      <textarea name="comments" ><%=str((extraData.get("comments")),"")%></textarea>
+                      <textarea name="comments" class="span8"><%=str((extraData.get("comments")),"")%></textarea>
                    </fieldset>
                </div>
                <script type="text/javascript">
                   hideExtraName(document.getElementById('providerDrop'));
                </script>
                <%}else if(layoutType.equals("PAPMAM")){/*next layout type*/%>
-               <div class="prevention">
+               <div class="prevention span8">
                    <fieldset>
                       <legend>Prevention : <%=prevention%></legend>
                          <div>
@@ -1131,8 +1120,8 @@ function changeSite(el) {
                             <input name="given" type="radio" value="ineligible" <%=checked(completed,"2")%>>Ineligible</input>
                          </div>
                          <div>&nbsp;</div>
-                         <div style="margin-left:30px;">
-                            <label for="prevDate" class="fields" >Date:</label>    <input type="text" name="prevDate" id="prevDate" value="<%=prevDate%>" size="9" > <a id="date"><img title="Calendar" src="../images/cal.gif" alt="Calendar" border="0" /></a> <br>
+                         <div style="margin-left:30px;" class="span8">
+                            <label for="prevDate" class="fields" >Date:</label><span class="input-append"><input type="text" name="prevDate" id="prevDate" value="<%=prevDate%>" style="width:167px;"> <a id="date"><img title="Calendar" class="add-on" src="../images/cal.gif" alt="Calendar" ></a></span><br>
                             <label for="provider" class="fields">Provider:</label> <input type="text" name="providerName" id="providerName"/>
                                   <select onchange="javascript:hideExtraName(this);" id="providerDrop" name="provider">
                                       <%for (int i=0; i < providers.size(); i++) { %>
@@ -1158,14 +1147,14 @@ function changeSite(el) {
                    </fieldset>
                    <fieldset >
                       <legend >Comments</legend>
-                      <textarea name="comments" ><%=str((extraData.get("comments")),"")%></textarea>
+                      <textarea name="comments" class="span8"><%=str((extraData.get("comments")),"")%></textarea>
                    </fieldset>
                </div>
                <script type="text/javascript">
                   hideExtraName(document.getElementById('providerDrop'));
                </script>
                <%} else if(layoutType.equals("history")) {%>
-               		 <div class="prevention">
+               		 <div class="prevention span8">
                    <fieldset>
                       <legend>Prevention : <%=prevention%></legend>
                          <div style="float:left;">
@@ -1174,7 +1163,7 @@ function changeSite(el) {
                             <input name="given" type="radio" value="previous" <%=checked(completed,"2")%>>Previous</input>
                          </div>
                          <div style="float:left;margin-left:30px;">
-                            <label for="prevDate" class="fields" >Date:</label>    <input type="text" name="prevDate" id="prevDate" value="<%=prevDate%>" size="9" > <a id="date"><img title="Calendar" src="../images/cal.gif" alt="Calendar" border="0" /></a> <br>
+                            <label for="prevDate" class="fields" >Date:</label><span class="input-append"><input type="text" name="prevDate" id="prevDate" value="<%=prevDate%>" style="width:167px;"> <a id="date"><img title="Calendar" class="add-on" src="../images/cal.gif" alt="Calendar" ></a></span><br>
                             <label for="provider" class="fields">Provider:</label> <input type="hidden" name="providerName" id="providerName" value="<%=providerName%>"/>
                                   <select onchange="javascript:hideExtraName(this);" id="providerDrop" name="provider">
                                       <%for (int i=0; i < providers.size(); i++) { %>
@@ -1189,27 +1178,28 @@ function changeSite(el) {
                    </fieldset>
                    <fieldset >
                       <legend >Comments</legend>
-                      <textarea name="comments" ><%=str((extraData.get("comments")),"")%></textarea>
+                      <textarea name="comments" class="span8"><%=str((extraData.get("comments")),"")%></textarea>
                    </fieldset>
                    </div>
                <%} %>
 
 
-               <div class="prevention">
+               <div class="prevention span8">
                    <fieldset>
                       <legend><a onclick="showHideNextDate('nextDateDiv','nextDate','nexerWarn')" href="javascript: function myFunction() {return false; }"   >Set Next Date</a></legend>
                         <div id="nextDateDiv" style="display:none;">
                          <div>
-                            <label for="nextDate" >Next Date:</label><input type="text" name="nextDate"  value="<%=nextDate%>" id="nextDate" size="9"><a id="nextDateCal"><img title="Calendar" src="../images/cal.gif" alt="Calendar" border="0" /></a>
+                            <label for="nextDate" >Next Date:</label>
+<span class="input-append"><input type="text" name="nextDate" id="nextDate" value="<%=nextDate%>" style="width:167px;"> <a id="nextDateCal"><img title="Calendar" class="add-on" src="../images/cal.gif" alt="Calendar" ></a></span>
                          </div>
                          <div>
-                            <label for="neverWarn" class="checkbox" >Never Remind:</label><input type="checkbox" name="neverWarn" id="neverWarn" value="neverRemind" onchange="disableifchecked(this,'nextDate');"  <%=completed(never)%>/> Reason: <input type="text" name="neverReason" value="<%=str((extraData.get("neverReason")),"")%>"/>
+                            <label for="neverWarn">Never Remind:</label><input type="checkbox" name="neverWarn" id="neverWarn" value="neverRemind" onchange="disableifchecked('neverWarn','nextDate');"  <%=completed(never)%>/><br><label for="neverReason">Never Reason:</label><input type="text" name="neverReason" value="<%=str((extraData.get("neverReason")),"")%>"/>
                          </div>
                         </div>
                    </fieldset>
                </div>
                <br/>
-               <input type="submit" value="Save" name="action"><!-- cvcActiveCall ?  <%= CanadianVaccineCatalogueManager2.getCVCActive(creationDate)%>  <%= creationDate%> -->
+               <input type="submit" class="btn btn-primary" value="Save" name="action"><!-- cvcActiveCall ?  <%= CanadianVaccineCatalogueManager2.getCVCActive(creationDate)%>  <%= creationDate%> -->
                <%
    					ConsentDao consentDao = SpringUtils.getBean(ConsentDao.class);
    					Consent ispaConsent =  consentDao.findByDemographicAndConsentType(Integer.parseInt(demographic_no), "dhir_ispa_consent");
@@ -1255,27 +1245,20 @@ function changeSite(el) {
 
    					%>
                <% if ( id != null ) { %>
-               <input type="submit" name="delete" value="Delete"/>
+               <input type="submit" class="btn" name="delete" value="Delete">
                <% } %>
                </html:form>
                <% } %>
-            </td>
-        </tr>
-        <tr>
-            <td class="MainTableBottomRowLeftColumn">
-            &nbsp;
-            </td>
-            <td class="MainTableBottomRowRightColumn" valign="top">
-            &nbsp;
-            </td>
-        </tr>
-    </table>
+
     <%if(prevHash != null) { %>
 <script type="text/javascript">
 Calendar.setup( { inputField : "prevDate", ifFormat : "%Y-%m-%d %H:%M", showsTime :true, button : "date", singleClick : true, step : 1 } );
 Calendar.setup( { inputField : "nextDate", ifFormat : "%Y-%m-%d", showsTime :false, button : "nextDateCal", singleClick : true, step : 1 } );
 </script>
 <% } %>
+    </div> <!-- "span8" -->
+</div> <!-- container-fluid well -->
+</div> <!-- "span12" -->
 </body>
 </html:html>
 <%!
