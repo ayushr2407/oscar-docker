@@ -26,8 +26,6 @@
 
 <%@page import="oscar.OscarProperties"%>
 
-
-
 <%@page import="oscar.oscarPrevention.*"%>
 <%@page import="org.oscarehr.managers.SecurityInfoManager"%>
 <%@page import="org.oscarehr.util.LoggedInInfo"%>
@@ -562,11 +560,11 @@ String r(Object re, String result){
 
 %>
             <span id="print_buttons">
-                <input type="button" class="noPrint"
+                <input type="button" class="noPrint btn"
 					name="printButton" onclick="EnablePrint(this)" value="Enable Print">
 				</input>
 			    <br>
-			    <!--<input type="button" name="sendToPhrButton" value="Send To MyOscar (PDF)" style="display: none;" onclick="sendToPhr(this)">-->
+			    <!--<input type="button" class="btn" name="sendToPhrButton" value="Send To MyOscar (PDF)" style="display: none;" onclick="sendToPhr(this)">-->
 			    <input type="hidden" name="demographicNo"
 				    value="<%=demographic_no%>" />
             </span>
