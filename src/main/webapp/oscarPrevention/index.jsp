@@ -23,7 +23,7 @@
     Ontario, Canada
 
 --%>
-
+<!DOCTYPE html>
 <%@page import="oscar.OscarProperties"%>
 <%@page import="oscar.oscarDemographic.data.*"%>
 <%@page import="oscar.oscarPrevention.*"%>
@@ -86,14 +86,14 @@ if(!authed) {
 
 	String demographic_no = request.getParameter("demographic_no");
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-	
+
 	LogAction.addLog(loggedInInfo, LogConst.READ, "Preventions", demographic_no, demographic_no, (String)null);
-	
+
 	DHIRSubmissionManager submissionManager = SpringUtils.getBean(DHIRSubmissionManager.class);
 	UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 	SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	
-	
+
+
   //int demographic_no = Integer.parseInt(request.getParameter("demographic_no"));
 
   DemographicData demoData = new DemographicData();
@@ -123,14 +123,14 @@ logger.info("prevention object created");
   //PreventionDS pf = SpringUtils.getBean(PreventionDS.class);
 
   CVCMappingDao cvcMappingDao = SpringUtils.getBean(CVCMappingDao.class);
-  
+
   SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
   String todayString = simpleDateFormat.format(Calendar.getInstance().getTime());
 
   boolean printError = request.getAttribute("printError") != null;
 
   boolean dhirEnabled=false;
-  
+
   	if("true".equals(OscarProperties.getInstance().getProperty("dhir.enabled", "false"))) {
   		dhirEnabled=true;
   	}
@@ -145,15 +145,15 @@ logger.info("prevention object created");
 
 	UserProperty ssoWarningUp = userPropertyDao.getProp(LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo(), UserProperty.PREVENTION_SSO_WARNING);
 	boolean hideSSOWarning = ssoWarningUp != null && "true".equals(ssoWarningUp.getValue());
-	
+
 	UserProperty ispaWarningUp = userPropertyDao.getProp(LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo(), UserProperty.PREVENTION_ISPA_WARNING);
 	boolean hideISPAWarning = ispaWarningUp != null && "true".equals(ispaWarningUp.getValue());
-	
+
 	UserProperty nonIspaWarningUp = userPropertyDao.getProp(LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo(), UserProperty.PREVENTION_NON_ISPA_WARNING);
 	boolean hideNonISPAWarning = nonIspaWarningUp != null && "true".equals(nonIspaWarningUp.getValue());
-	
+
 	boolean canUpdateCVC = securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_prevention.updateCVC", "r", null);
-	
+
 %>
 
 <%!
@@ -163,11 +163,6 @@ logger.info("prevention object created");
 		else return("");
 	}
 %>
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-
-
 
 <%@page import="org.oscarehr.util.SessionConstants"%>
 <%@ page import="oscar.log.LogAction"%>
@@ -180,13 +175,12 @@ logger.info("prevention object created");
 <title><bean:message
 		key="oscarprevention.index.oscarpreventiontitre" /></title>
 <!--I18n-->
-<link rel="stylesheet" type="text/css"
-	href="../share/css/OscarStandardLayout.css" />
-<script type="text/javascript" src="<%=request.getContextPath()%>/share/javascript/Oscar.js"></script>
-<!--<script type="text/javascript" src="<%=request.getContextPath()%>/share/javascript/prototype.js"></script>-->
-<script type="text/javascript"
-	src="<%=request.getContextPath()%>/js/jquery-1.12.3.js"></script>
-<!-- note that 1.9 has a mapping issue -->
+<script src="<%=request.getContextPath()%>/share/javascript/Oscar.js"></script>
+
+<script src="<%=request.getContextPath() %>/library/jquery/jquery-3.6.4.min.js"></script>
+
+
+<link href="<%=request.getContextPath()%>/css/bootstrap.css" rel="stylesheet" > <!-- Bootstrap 2.3.1 -->
 
 <script type="text/javascript" src="<%=request.getContextPath()%>/share/yui/js/yahoo-dom-event.js"></script>
 <script type="text/javascript" src="<%=request.getContextPath()%>/share/yui/js/connection-min.js"></script>
@@ -194,47 +188,31 @@ logger.info("prevention object created");
 <script type="text/javascript" src="<%=request.getContextPath()%>/share/yui/js/datasource-min.js"></script>
 <script type="text/javascript" src="<%=request.getContextPath()%>/share/yui/js/autocomplete-min.js"></script>
 
+<link rel="stylesheet" href="<%=request.getContextPath()%>/share/yui/css/fonts-min.css" />
+<link rel="stylesheet" href="<%=request.getContextPath()%>/share/yui/css/autocomplete.css" />
 
-<link rel="stylesheet" type="text/css"
-	href="<%=request.getContextPath()%>/share/yui/css/fonts-min.css" />
-<link rel="stylesheet" type="text/css"
-	href="<%=request.getContextPath()%>/share/yui/css/autocomplete.css" />
-
-<link rel="stylesheet" type="text/css" media="all"
-	href="<%=request.getContextPath()%>/share/css/demographicProviderAutocomplete.css" />
+<link rel="stylesheet" media="all" href="<%=request.getContextPath()%>/share/css/demographicProviderAutocomplete.css" />
 
 <script src="<%=request.getContextPath()%>/share/javascript/popupmenu.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/share/javascript/menutility.js" type="text/javascript"></script>
 
-
 <script>
 
 $(document).ready(function(){
-    $("#recommendations").load("<%=request.getContextPath()%>/oscarPrevention/preventionRecommendations.jsp?demographic_no=<%=demographic_no%>"); 
-  
+    $("#recommendations").load("<%=request.getContextPath()%>/oscarPrevention/preventionRecommendations.jsp?demographic_no=<%=demographic_no%>");
+
     $.ajax('<%=request.getContextPath()%>/oscarPrevention/preventions.jsp?demographic_no=<%=demographic_no%>').done(function (response) {
         $('#preventions').html($.parseHTML( response ));
-        styleMe();
     });
 
 });
-
-function styleMe() {
-    if(!NiftyCheck()) return;
-    Rounded("div.headPrevention","all","#CCF","#efeadc","small border blue");
-    Rounded("div.preventionProcedure","all","transparent","#F0F0E7","small border #999");
-    Rounded("div.leftBox","top","transparent","#CCCCFF","small border #ccccff");
-    Rounded("div.leftBox","bottom","transparent","#EEEEFF","small border #ccccff");
-}
-
-
 
 function showMenu(menuNumber, eventObj) {
     var menuId = 'menu' + menuNumber;
     return showPopup(menuId, eventObj);
 }
 </script>
-<style type="text/css">
+<style>
 div.ImmSet {
 	background-color: #ffffff;
 	clear: left;
@@ -242,7 +220,7 @@ div.ImmSet {
 }
 
 div.ImmSet h2 {
-	
+
 }
 
 div.ImmSet h2 span {
@@ -250,11 +228,11 @@ div.ImmSet h2 span {
 }
 
 div.ImmSet ul {
-	
+
 }
 
 div.ImmSet li {
-	
+
 }
 
 div.ImmSet li a {
@@ -272,7 +250,6 @@ div.ImmSet li a:visited {
 	color: blue;
 }
 
-/*h3{font-size: 100%;margin:0 0 10px;padding: 2px 0;color: #497B7B;text-align: center}*/
 div.onPrint {
 	display: none;
 }
@@ -290,14 +267,7 @@ span.footnote {
 }
 </style>
 
-<link rel="stylesheet" type="text/css"
-	href="<%=request.getContextPath()%>/share/css/niftyCorners.css" />
-<link rel="stylesheet" type="text/css"
-	href="<%=request.getContextPath()%>/share/css/niftyPrint.css" media="print" />
-
-
-<script type="text/javascript" src="<%=request.getContextPath()%>/share/javascript/nifty.js"></script>
-<script type="text/javascript">
+<script>
 
 function display(elements) {
 
@@ -323,14 +293,14 @@ function EnablePrint(button) {
     }
 }
 
-function printImmOnly() { 
+function printImmOnly() {
 	 document.printFrm.immunizationOnly.value = "true";
 	 document.printFrm.submit();
 }
 
 function showImmunizationOnlyPrintButton() {
 		console.log("test");
-		$("#print_buttons").append("<input type=\"button\" class=\"noPrint\" name=\"printImmButton\" onclick=\"printImmOnly()\" value=\"Print Immunizations Only\">");
+		$("#print_buttons").append("<input type=\"button\" class=\"noPrint btn\" name=\"printImmButton\" onclick=\"printImmOnly()\" value=\"Print Immunizations Only\">");
 }
 
 function onPrint() {
@@ -361,14 +331,14 @@ function sendToPhr(button) {
 
 function addByLot() {
 	var lotNbr = $("#lotNumberToAdd").val();
-	
+
 	popup(820,800,'AddPreventionData.jsp?demographic_no=<%=demographic_no%>&lotNumber=' + lotNbr,'addPreventionData' + <%=new java.util.Random().nextInt(10000) + 1%> );
-	
+
 }
 
 function viewDHIRSummary() {
 	popup(600,900,'ViewDHIRData.jsp?demographic_no=<%=demographic_no%>','ViewDHIRData' + <%=new java.util.Random().nextInt(10000) + 1%> );
-	
+
 }
 </script>
 
@@ -444,7 +414,7 @@ div.headPrevention {
 	position: relative;
 	float: left;
 	width: 10em;
-	height: 2.5em;
+	height: 1.9em;
 }
 
 div.headPrevention p {
@@ -512,7 +482,7 @@ div.preventionSet {
 
 div.recommendations {
 	font-family: verdana, tahoma, sans-serif;
-	font-size: 1.2em;
+	font-size: 14px;
 }
 
 div.recommendations ul {
@@ -644,8 +614,8 @@ List<String> OTHERS = Arrays.asList(new String[]{"DTaP-Hib","TdP-IPV-Hib","HBTmf
 %>
 	<table class="MainTable" id="scrollNumber1">
 		<tr class="MainTableTopRow">
-			<td class="MainTableTopRowLeftColumn"><bean:message
-					key="oscarprevention.index.oscarpreventiontitre" /></td>
+			<td class="MainTableTopRowLeftColumn"><h3>&nbsp;<bean:message
+					key="oscarprevention.index.oscarpreventiontitre" /></h3></td>
 			<td class="MainTableTopRowRightColumn">
 				<table class="TopStatusBar">
 					<tr>
@@ -656,11 +626,11 @@ List<String> OTHERS = Arrays.asList(new String[]{"DTaP-Hib","TdP-IPV-Hib","HBTmf
 							onclick="popupFocusPage(700, 1000, '../billing.do?billRegion=ON&amp;billForm=MFP&amp;hotclick=&amp;appointment_no=0&amp;demographic_name=<%=Encode.forUriComponent(demo.getLastName())%>%2C<%=Encode.forUriComponent(demo.getFirstName())%>&amp;demographic_no=<%=demographic_no%>&amp;providerview=1&amp;user_no=<%=(String) session.getValue("user")%>&amp;apptProvider_no=none&amp;appointment_date=<%=todayString%>&amp;start_time=0:00:00&amp;bNewForm=1&amp;status=t','_self');return false;"
 							href="javascript: function myFunction() {return false; }"> B
 						</a>&nbsp;| <% } %>
-							
+
 								<%
 logger.info("rendering page top bar");
 					if(canUpdateCVC) {
-					%> <a onClick="updateCVC()" href="javascript:void()">Update CVC</a>
+					%> <a onClick="updateCVC()" href="javascript:void()">Update Immunizations</a>
 								| <% } %> <oscar:help keywords="prevention" key="app.top1" /> | <a
 								href="javascript:popupStart(300,400,'About.jsp')"><bean:message
 										key="global.about" /></a> | <a
@@ -676,7 +646,7 @@ logger.info("rendering page top bar");
 
 
 				<div class="leftBox">
-					<h3>&nbsp;Preventions</h3>
+					<!-- <h3>&nbsp;Preventions</h3> -->
 					<div style="background-color: #EEEEFF;">
 						<p>Screenings</p>
 						<ul>
@@ -731,7 +701,7 @@ logger.info("rendering page top bar");
                 if(ispa) {
                 	ispa1 = "*";
                 }
-                
+
             	if(hcType != null) {
 		            if(!preventionManager.hideItem(prevName) && !OTHERS.contains(prevName)){
 		            	List<CVCMapping> mappings = cvcMappingDao.findMultipleByOscarName(prevName);
@@ -768,11 +738,11 @@ if(bShowAll){
                 String displayName = h.get("displayName") != null ? h.get("displayName") : prevName;
                 String snomedId = h.get("snomedConceptCode") != null ? h.get("snomedConceptCode") : null;
                 String hcType = h.get("healthCanadaType");
-            	
+
 	            if(!preventionManager.hideItem(prevName)){
-	            	
+
 	            	if(OTHERS.contains(prevName)) {
-	            	
+
 		            	List<CVCMapping> mappings = cvcMappingDao.findMultipleByOscarName(prevName);
 			            if(mappings != null && mappings.size()>1) {%>
 							<li style="margin-top: 2px;"><a
@@ -796,8 +766,8 @@ if(bShowAll){
 	        %>
 						</ul>
 					</div>
-				</div> 
-<% if(bShowAll){  %>    <!-- old AND broken functionality -->          
+				</div>
+<% if(bShowAll){  %>    <!-- old AND broken functionality -->
                 <oscar:oscarPropertiesCheck property="IMMUNIZATION_IN_PREVENTION"
 					value="yes">
 					<a href="javascript: function myFunction() {return false; }"
@@ -806,10 +776,10 @@ if(bShowAll){
 					</a>
 					<br>
 				</oscar:oscarPropertiesCheck>
-<% }  %>  
+<% }  %>
 			</td>
 
-			
+
 				<td valign="top" class="MainTableRightColumn"><a href="#"
 					onclick="popup(600,800,'https://www.canada.ca/en/public-health/services/publications/healthy-living/canadian-immunization-guide-part-1-key-immunization-information/page-13-recommended-immunization-schedules.html')">Immunization
 						Schedules - Public Health Agency of Canada</a> <%
@@ -832,14 +802,14 @@ if(bShowAll){
 					<%
 					}
 				}
-		%> 
+		%>
 					<br><span style="font-size: larger;">Prevention Recommendations</span>
-					<div id="recommendations" class="recommendations">
+					<div id="recommendations" class="recommendations alert-info">
                         <br>
                         &nbsp;<img src='<%=request.getContextPath()%>/images/DMSLoader.gif'>&nbsp;<bean:message key="caseload.msgLoading" />
                         <br>
 						<%
-                    logger.info("rendering loading of reccomendations");
+                    logger.info("rendering loading of recomendations");
                     if(printError) {
                    %>
 						<p style="color: red; font-size: larger">An error occurred
@@ -857,7 +827,7 @@ if(bShowAll){
 								name="lotNumberToAdd2" size="40" />
 							<div id="lotNumberToAdd2_choices" class="autocomplete"></div></td>
 						</tr>
-					</table> <% } %> <br /> <%if(dhirEnabled) {%> <input type="button"
+					</table> <% } %> <br /> <%if(dhirEnabled) {%> <input type="button" class="btn"
 					value="View DHIR Data" onClick="viewDHIRSummary()" /> <% } %> <%
 	 String[] ColourCodesArray=new String[7];
 	 ColourCodesArray[1]="#F0F0E7"; //very light grey - completed or normal
@@ -885,10 +855,10 @@ if(bShowAll){
 
 	 	for (int iLegend = 1; iLegend < 7; iLegend++){
 
-			legend_builder +="<td> <table class='colour_codes' style=\"white-space:nowrap;\" bgcolor='"+ColourCodesArray[iLegend]+"'><tr><td> </td></tr></table> </td> <td align='center' style=\"white-space:nowrap;\">"+lblCodesArray[iLegend]+"</td>";
+			legend_builder +="<td> <table class='colour_codes' style=\"white-space:nowrap; background-color:"+ColourCodesArray[iLegend]+"\"><tr><td> </td></tr></table> </td> <td align='center' style=\"white-space:nowrap;\">"+lblCodesArray[iLegend]+"</td>";
 
 		}
-	 	
+
 	 	legend_builder +="<td> <table class='colour_codes' style=\"white-space:nowrap;border:none\" bgcolor='white'><tr><td>*</td></tr></table> </td> <td align='center' style=\"white-space:nowrap;\">ISPA</td>";
 
 
@@ -905,7 +875,7 @@ if(bShowAll){
 							name="hin" value="<%=hin%>" /> <input type="hidden" name="mrp"
 							value="<%=mrp%>" /> <input type="hidden" name="module"
 							value="prevention">
-                        <div id="preventions"> 
+                        <div id="preventions">
                             <br>
                             &nbsp;<img src='<%=request.getContextPath()%>/images/DMSLoader.gif'><bean:message key="caseload.msgLoading" />
                             <br>
@@ -916,11 +886,11 @@ if(bShowAll){
 		</tr>
 		<tr>
 			<td class="MainTableBottomRowLeftColumn"> <!-- <span
-				id="print_buttons"> <input type="button" class="noPrint"
+				id="print_buttons"> <input type="button" class="noPrint btn"
 					name="printButton" onclick="EnablePrint(this)" value="Enable Print">
-				</input> 
+				</input>
 			<br>
-			<input type="button" name="sendToPhrButton" value="Send To MyOscar (PDF)" style="display: none;" onclick="sendToPhr(this)">
+			<input type="button" class="btn" name="sendToPhrButton" value="Send To MyOscar (PDF)" style="display: none;" onclick="sendToPhr(this)">
 --></td>
 
 			<input type="hidden" id="demographicNo" name="demographicNo"
@@ -931,7 +901,7 @@ if(bShowAll){
             endTime = System.nanoTime();
             logger.info("Thats the basic page after " + ((endTime - startTime)/1000)/1000 + " milliseconds");
  %>
-								
+
 		</tr>
 	</table>
 
@@ -942,7 +912,7 @@ if(bShowAll){
 //basic..just makes the brand name ones bold
 var resultFormatter2 = function(oResultData, sQuery, sResultMatch) {
 	var output = '';
-	
+
 	if(!oResultData[1]) {
 		output = '<b>' + oResultData[0] + '</b>';
 	} else {
@@ -968,24 +938,24 @@ YAHOO.example.BasicRemote = function() {
           oAC.formatResult = resultFormatter2;
           oAC.queryMatchContains = true;
           oAC.itemSelectEvent.subscribe(function(type, args) {
-        	  var myAC = args[0]; // reference back to the AC instance 
-        	  var elLI = args[1]; // reference to the selected LI element 
-        	  var oData = args[2]; // object literal of selected item's result data 
-        	  
+        	  var myAC = args[0]; // reference back to the AC instance
+        	  var elLI = args[1]; // reference to the selected LI element
+        	  var oData = args[2]; // object literal of selected item's result data
+
         	  console.log('selected');
-        	  
+
         	  console.log('args:' + oData[0] + ',' + oData[1] + ',' + oData[2] + ',' + oData[3] + ',' + oData[4]);
-	
+
         	  //We need to load AddPreventionData with possible brand name, and possible lotnumber/exp.
         	  if(oData[4].length > 0) {
         		popup(820,800,'AddPreventionData.jsp?demographic_no=<%=demographic_no%>&lotNumber=' + oData[4],'addPreventionData' + <%=new java.util.Random().nextInt(10000) + 1%> );
         		document.getElementById('lotNumberToAdd2').value = '';
         	  } else {
         		 popup(820,800,'AddPreventionData.jsp?search=true&demographic_no=<%=demographic_no%>&snomedId=' + oData[2] + '&brandSnomedId=' + oData[3],'addPreventionData' + <%=new java.util.Random().nextInt(10000) + 1%> );
-          		document.getElementById('lotNumberToAdd2').value = '';  
+          		document.getElementById('lotNumberToAdd2').value = '';
         	  }
 
-           	
+
           });
 
            return {
