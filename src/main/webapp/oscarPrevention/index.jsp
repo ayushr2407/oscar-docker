@@ -381,14 +381,13 @@ div.leftBox {
 
 div.leftBox h3 {
 	background-color: #ccccff;
-	/*font-size: 1.25em;*/
-	font-size: 8pt;
+	font-size: 10pt;
 	font-variant: small-caps;
-	font: bold;
 	margin-top: 0px;
 	padding-top: 0px;
 	margin-bottom: 0px;
 	padding-bottom: 0px;
+	line-height: 20px;
 }
 
 div.leftBox ul { /*border-top: 1px solid #F11;*/
@@ -403,11 +402,13 @@ div.leftBox ul { /*border-top: 1px solid #F11;*/
 	padding-top: 1px;
 	margin-bottom: 0px;
 	padding-bottom: 0px;
+	font-size: 0.8em;
 }
 
 div.leftBox li {
 	padding-right: 15px;
 	white-space: nowrap;
+	line-height:16px;
 }
 
 div.headPrevention {
@@ -648,7 +649,7 @@ logger.info("rendering page top bar");
 				<div class="leftBox">
 					<!-- <h3>&nbsp;Preventions</h3> -->
 					<div style="background-color: #EEEEFF;">
-						<p>Screenings</p>
+						<h3>Screenings</h3>
 						<ul>
 							<%
 
@@ -684,7 +685,7 @@ logger.info("rendering page top bar");
 	        %>
 
 						</ul>
-						<p>Immunizations</p>
+						<h3>Immunizations</h3>
 						<ul>
 							<%
             // endTime = System.nanoTime();
@@ -725,7 +726,7 @@ logger.info("rendering page top bar");
 			}
 	        %>
 						</ul>
-						<p>Other</p>
+						<!--<h3>Other</h3>-->
 						<ul>
 							<%
 logger.info("finished the index");
