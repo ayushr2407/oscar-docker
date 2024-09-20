@@ -213,6 +213,17 @@
               prev.addWarning("MMR", "Needs 1st MMR-Var");
         </java:consequence>
 	</rule>
+	<rule name="RSVAb">
+		<parameter identifier="prev">
+			<class>oscar.oscarPrevention.Prevention</class>
+		</parameter>
+		<java:condition>prev.getAgeInMonths() &lt; 9</java:condition>
+		<java:condition>prev.getNumberOfPreventionType("RSVAb") == 0</java:condition>
+		<java:consequence>
+              prev.log("RSVAb");
+              prev.addReminder("Consider RSVAb in Season");
+        </java:consequence>
+	</rule>
 	<rule name="MenC-C 1">
 		<parameter identifier="prev">
 			<class>oscar.oscarPrevention.Prevention</class>
