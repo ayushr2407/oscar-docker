@@ -146,7 +146,7 @@
     		<div class="row">
     			<div class="span5" >
 					<div style="margin-top:25px;">
-				               <img src="<%=request.getContextPath() %>/images/OSCAR-LOGO.gif" width="450" height="274">
+				               <img src="<%=request.getContextPath() %>/images/oat-clinic-logo-oscar.png" width="450" height="274">
 				               
 				               <p>
 				               <font size="-1" face="Verdana, Arial, Helvetica, sans-serif">
